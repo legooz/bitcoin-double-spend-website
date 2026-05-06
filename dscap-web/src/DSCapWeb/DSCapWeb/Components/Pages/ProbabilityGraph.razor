@@ -1,0 +1,146 @@
+﻿@using ApexCharts
+@using DSCapWeb.Core.Models
+
+@if (Points is null || !Points.Any())
+{
+    <p>No data loaded.</p>
+}
+else
+{
+    <ApexChart TItem="ProbabilityPointDTO"
+               Title="@Title"
+               Options="@ChartOptions">
+
+        <ApexPointSeries TItem="ProbabilityPointDTO"
+                         Items="Points"
+                         Name="@SeriesName"
+                         XValue="GetXValue"
+                         YValue="GetYValue" />
+    </ApexChart>
+}
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string SeriesName { get; set; } = "Probability";
+
+    [Parameter]
+    public List<ProbabilityPointDTO> Points { get; set; } = new();
+
+    [Parameter]
+    public bool UseConfirmationNumber { get; set; }
+
+    [Parameter]
+    public bool UseStepLine { get; set; }
+
+    [Parameter]
+    public int Height { get; set; } = 420;
+
+    private Dictionary<ProbabilityPointDTO, int> _confirmationNumbers = new();
+
+    protected override void OnParametersSet()
+    {
+        if (UseConfirmationNumber)
+        {
+            _confirmationNumbers = Points
+                .Select((point, index) => new { point, confirmationNumber = index + 1 })
+                .ToDictionary(x => x.point, x => x.confirmationNumber);
+        }
+        else
+        {
+            _confirmationNumbers.Clear();
+        }
+    }
+
+    private object GetXValue(ProbabilityPointDTO point)
+    {
+        if (UseConfirmationNumber && _confirmationNumbers.TryGetValue(point, out var confirmationNumber))
+        {
+            return confirmationNumber;
+        }
+
+        return point.ElapsedSeconds;
+    }
+
+    private decimal? GetYValue(ProbabilityPointDTO point)
+    {
+        return (decimal)point.Probability;
+    }
+
+    private ApexChartOptions<ProbabilityPointDTO> ChartOptions => new()
+        {
+            Colors = new List<string> { "#f59e0b" },
+            Chart = new Chart
+            {
+                Type = ChartType.Line,
+                Height = Height,
+                Zoom = new Zoom
+                {
+                    Enabled = true,
+                    AllowMouseWheelZoom = false,
+                    AutoScaleYaxis = true
+                }
+            },
+            Stroke = new Stroke
+            {
+                Curve = UseStepLine ? Curve.Stepline : Curve.Straight,
+                Width = new List<double> { 2 }
+            },
+            Xaxis = new XAxis
+            {
+                Title = new AxisTitle
+                {
+                    Text = UseConfirmationNumber ? "Confirmation Number" : "Elapsed Seconds"
+                },
+                TickAmount = 10
+            },
+            Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                Min = 0,
+                Title = new AxisTitle
+                {
+                    Text = "Double Spend Probability"
+                },
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"
+function(value) {
+    const num = Number(value);
+    if (!isFinite(num) || num === 0) return '0';
+
+    const expString = num.toExponential(4);
+    const parts = expString.split('e');
+    const mantissa = parts[0];
+    const exponent = parseInt(parts[1], 10);
+
+    const superscriptMap = {
+        '-': '⁻',
+        '0': '⁰',
+        '1': '¹',
+        '2': '²',
+        '3': '³',
+        '4': '⁴',
+        '5': '⁵',
+        '6': '⁶',
+        '7': '⁷',
+        '8': '⁸',
+        '9': '⁹'
+    };
+
+    const expSup = exponent
+        .toString()
+        .split('')
+        .map(ch => superscriptMap[ch] || ch)
+        .join('');
+
+    return mantissa + '×10' + expSup;
+}"
+                }
+            }
+        }
+        };
+}

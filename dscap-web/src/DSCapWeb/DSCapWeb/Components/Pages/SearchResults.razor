@@ -1,0 +1,300 @@
+﻿@page "/search"
+@using DSCapWeb.Core.Models
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="search-results-page">
+    <div class="search-shell">
+        <input type="text"
+               class="hero-search-input"
+               placeholder="Enter Transaction ID (TXID)"
+               maxlength="64"
+               spellcheck="false"
+               autocapitalize="off"
+               autocomplete="off"
+               value="@searchText"
+               @oninput="HandleInput"
+               @onkeydown="HandleKeyPress" />
+
+        <button class="hero-search-button" @onclick="Search">
+            Analyze
+        </button>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(validationMessage))
+{
+    <p class="value-danger" style="margin-top: 0.75rem;">
+        @validationMessage
+    </p>
+}
+
+@if (string.IsNullOrWhiteSpace(Query))
+{
+    <p>Enter a search term.</p>
+}
+else if (Loading)
+{
+    <p>Loading transaction summary...</p>
+}
+else if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p style="color:red">@ErrorMessage</p>
+}
+else if (TXSummary is null)
+{
+    <p>No results found for: <strong>@Query</strong></p>
+}
+else
+{
+    <div class="transaction-page">
+        <div class="transaction-layout">
+            <div class="left-column">
+                <div class="glass-card analysis-card">
+                    <div class="analysis-title">Double Spend Analysis</div>
+
+                    <div class="risk-panel">
+                        <div class="data-label">ATTACK PROBABILITY</div>
+                        <div class="probability-text @(LiveProbability < 0 ? "value-danger" : "")">
+                            @ProbabilityDisplay
+                        </div>
+                        <div class="@RiskTextClass">
+                            @RiskLabel
+                        </div>
+                    </div>
+
+                    <div class="meta-row">
+                        <div class="section-title">LIVE STATUS</div>
+                        <div class="value-text">@(IsLiveConnected ? "Connected" : "Disconnected")</div>
+                    </div>
+
+                    <div class="meta-row">
+                        <div class="section-title">ELAPSED TIME</div>
+                        <div class="value-text">@($"{LiveElapsedTime:F2} s")</div>
+                    </div>
+
+                    <div class="meta-row">
+                        <div class="section-title">LAST UPDATED (UTC)</div>
+                        <div class="value-text">
+                            @(LastUpdatedUtc?.ToString("yyyy-MM-dd HH:mm:ss") ?? "-")
+                        </div>
+                    </div>
+
+                    <div class="alpha-block">
+                        <div class="section-title">ALPHA</div>
+                        <div class="alpha-row">
+                            <input type="range"
+                                   min="0.01"
+                                   max="0.49"
+                                   step="0.01"
+                                   value="@CurrentAlpha"
+                                   @oninput="OnAlphaSliderChanged"
+                                   class="alpha-slider" />
+
+                            <span class="alpha-value">@CurrentAlpha.ToString("F2")</span>
+                        </div>
+
+                        <div class="settings-row">
+                            <label for="lttbThreshold" class="settings-label">LTTB THRESHOLD</label>
+                            <input id="lttbThreshold"
+                                   type="number"
+                                   min="1"
+                                   step="1"
+                                   class="threshold-input"
+                                   @bind="PendingLttbThresholdText"
+                                   @bind:event="oninput" />
+                        </div>
+
+                        <button class="hero-search-button apply-settings-button"
+                                @onclick="ApplySettingsAsync"
+                                disabled="@Loading">
+                            Apply Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="summary-grid">
+                    <div class="summary-card summary-card-full">
+                        <div class="section-title">TRANSACTION ID</div>
+                        <div class="hash-text">@TXSummary.TxId</div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="section-title">DATE MINED (UTC)</div>
+                        <div class="value-text">@TimeMinedDisplay</div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="section-title">CONFIRMATIONS</div>
+                        <div class="value-success">@LiveConfirmations</div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="section-title">ESTIMATED TRANSACTION FEE</div>
+                        <div class="@(EstimatedFeeBtc.HasValue ? "value-warning" : "value-text")">
+                            @EstimatedFeeDisplay
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="section-title">BLOCK HASH</div>
+                        <div class="hash-text">@TXSummary.BlockHash</div>
+                    </div>
+                </div>
+
+                <div class="io-grid">
+                    <div class="io-card">
+                        <div class="section-title value-danger">
+                            @(IsCoinbaseTransaction
+                                ? "COINBASE INPUT"
+                                : $"INPUTS ({(TXSummary?.Inputs?.Count ?? 0)})")
+                        </div>
+
+                        <div class="io-scroll">
+                            @foreach (var input in TXSummary?.Inputs ?? [])
+                            {
+                                <div class="io-entry">
+                                    <div class="addr-text">
+                                        @(IsCoinbaseTransaction ? "COINBASE" : input.Address)
+                                    </div>
+                                    <div class="value-danger">
+                                        @(input.Value.HasValue ? $"-{input.Value} BTC" : "Block Reward")
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="io-card">
+                        <div class="section-title value-success">
+                            OUTPUTS (@(TXSummary?.Outputs?.Count ?? 0))
+                        </div>
+
+                        <div class="io-scroll">
+                            @foreach (var output in TXSummary?.Outputs ?? [])
+                            {
+                                <div class="io-entry">
+                                    <div class="addr-text">@string.Join(", ", output.Addresses ?? [])</div>
+                                    <div class="value-success">+@output.Value BTC</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (CanShowGraphs)
+        {
+            <div class="graphs-section">
+                <div class="graphs-header">
+                    <div>
+                        <div class="graphs-title">Historical Probability Graphs</div>
+                        <div class="graphs-subtitle">
+                            Current alpha: @CurrentAlpha.ToString("F2") · LTTB threshold: @LttbThreshold
+                        </div>
+                    </div>
+                </div>
+
+                @if (HistoryLoading)
+                {
+                    <div class="graph-status-card">
+                        Loading historical graph data...
+                    </div>
+                }
+                else if (!string.IsNullOrWhiteSpace(HistoryErrorMessage))
+                {
+                    <div class="graph-status-card graph-status-error">
+                        @HistoryErrorMessage
+                    </div>
+                }
+                else if (HasAnyGraphs)
+                {
+                    <div class="graph-grid">
+                        @if (HasHistoryGraphs)
+                        {
+                            <div class="graph-card graph-card-wide">
+                                <div class="graph-card-title">Full History</div>
+                                <div class="graph-card-subtitle">Confirmation-based view across the complete transaction history.</div>
+                                <div class="graph-surface">
+                                    <ProbabilityGraph Title=""
+                                                      SeriesName="Full History"
+                                                      Points="FullHistoryPoints"
+                                                      UseConfirmationNumber="true"
+                                                      UseStepLine="true"
+                                                      Height="420" />
+                                </div>
+                            </div>
+
+                            <div class="graph-card">
+                                <div class="graph-card-title">First 5 Hours</div>
+                                <div class="graph-card-subtitle">Time-based probability growth during the first five hours.</div>
+                                <div class="graph-surface">
+                                    <ProbabilityGraph Title=""
+                                                      SeriesName="First 5 Hours"
+                                                      Points="First5HoursPoints"
+                                                      UseConfirmationNumber="false"
+                                                      UseStepLine="false"
+                                                      Height="360" />
+                                </div>
+                            </div>
+
+                            <div class="graph-card">
+                                <div class="graph-card-title">5-Hour Confirmations</div>
+                                <div class="graph-card-subtitle">Same first five-hour window, but plotted by confirmation count.</div>
+                                <div class="graph-surface">
+                                    <ProbabilityGraph Title=""
+                                                      SeriesName="5 Hour Confirmations"
+                                                      Points="ConfirmationBased5HourPoints"
+                                                      UseConfirmationNumber="true"
+                                                      UseStepLine="true"
+                                                      Height="360" />
+                                </div>
+                            </div>
+
+                            <div class="graph-card">
+                                <div class="graph-card-title">Time vs Confirmation Comparison</div>
+                                <div class="graph-card-subtitle">Direct comparison between the time-based and confirmation-based five-hour curves.</div>
+                                <div class="graph-surface">
+                                    <CompareProbabilityGraph Title=""
+                                                             TimeSeriesName="Time-Based 5 Hours"
+                                                             ConfirmationSeriesName="Confirmation-Based 5 Hours"
+                                                             TimeBasedPoints="First5HoursPoints"
+                                                             ConfirmationBasedPoints="ConfirmationBased5HourPoints"
+                                                             Height="420" />
+                                </div>
+                            </div>
+                        }
+
+                        <div class="graph-card">
+                            <div class="graph-card-title">Live Probability</div>
+                            <div class="graph-card-subtitle">Incoming live websocket updates plotted over elapsed time.</div>
+                            <div class="graph-surface">
+                                <LiveProbabilityGraph @ref="LiveGraph"
+                                                      Title=""
+                                                      SeriesName="Live"
+                                                      Points="LivePoints"
+                                                      Height="360" />
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="graph-status-card">
+                        No graph data is available for this transaction yet.
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="graphs-section">
+                <div class="graph-status-card">
+                    Graphs are not available for mempool transactions or transactions with no mined block yet.
+                </div>
+            </div>
+        }
+    </div>
+}

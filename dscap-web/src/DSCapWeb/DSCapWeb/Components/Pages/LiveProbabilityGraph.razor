@@ -1,0 +1,149 @@
+﻿@using ApexCharts
+@using DSCapWeb.Core.Models
+
+@if (Points is null || !Points.Any())
+{
+    <p>No live data yet.</p>
+}
+else
+{
+    <ApexChart TItem="ProbabilityPointDTO"
+               @ref="Chart"
+               Title="@Title"
+               Options="@ChartOptions">
+
+        <ApexPointSeries TItem="ProbabilityPointDTO"
+                         Items="Points"
+                         Name="@SeriesName"
+                         XValue="GetXValue"
+                         YValue="GetYValue" />
+    </ApexChart>
+}
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Live Probability";
+
+    [Parameter]
+    public string SeriesName { get; set; } = "Live";
+
+    [Parameter]
+    public List<ProbabilityPointDTO> Points { get; set; } = new();
+
+    [Parameter]
+    public int Height { get; set; } = 420;
+
+    private ApexChart<ProbabilityPointDTO>? Chart;
+
+    private object GetXValue(ProbabilityPointDTO point)
+    {
+        return point.ElapsedSeconds;
+    }
+
+    private decimal? GetYValue(ProbabilityPointDTO point)
+    {
+        return (decimal)point.Probability;
+    }
+
+    private ApexChartOptions<ProbabilityPointDTO> ChartOptions => new()
+        {
+            Colors = new List<string> { "#f59e0b" },
+            Chart = new Chart
+            {
+                Type = ChartType.Line,
+                Height = Height,
+                Zoom = new Zoom
+                {
+                    Enabled = false,
+                    AllowMouseWheelZoom = false
+                },
+                Animations = new Animations
+                {
+                    Enabled = false
+                }
+            },
+            Fill = new Fill
+            {
+                Type = FillType.Solid,
+                Opacity = 0
+            },
+            Stroke = new Stroke
+            {
+                Curve = Curve.Straight,
+                Width = 2
+            },
+            Markers = new Markers
+            {
+                Size = 0
+            },
+            Xaxis = new XAxis
+            {
+                Title = new AxisTitle
+                {
+                    Text = "Seconds"
+                },
+                AxisBorder = new AxisBorder
+                {
+                    Show = false
+                }
+            },
+            Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                Title = new AxisTitle
+                {
+                    Text = "Double Spend Probability"
+                },
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"
+function(value) {
+    const num = Number(value);
+    if (!isFinite(num) || num === 0) return '0';
+
+    const expString = num.toExponential(4);
+    const parts = expString.split('e');
+    const mantissa = parts[0];
+    const exponent = parseInt(parts[1], 10);
+
+    const superscriptMap = {
+        '-': '⁻',
+        '0': '⁰',
+        '1': '¹',
+        '2': '²',
+        '3': '³',
+        '4': '⁴',
+        '5': '⁵',
+        '6': '⁶',
+        '7': '⁷',
+        '8': '⁸',
+        '9': '⁹'
+    };
+
+    const expSup = exponent
+        .toString()
+        .split('')
+        .map(ch => superscriptMap[ch] || ch)
+        .join('');
+
+    return mantissa + '×10' + expSup;
+}"
+                }
+            }
+        },
+            Grid = new Grid
+            {
+                BorderColor = "#e7e7e7",
+                StrokeDashArray = 4
+            }
+        };
+
+    public async Task RefreshAsync()
+    {
+        if (Chart is not null)
+        {
+            await Chart.UpdateSeriesAsync();
+        }
+    }
+}

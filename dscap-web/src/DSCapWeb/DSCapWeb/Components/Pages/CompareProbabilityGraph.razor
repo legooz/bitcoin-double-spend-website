@@ -1,0 +1,176 @@
+﻿@using ApexCharts
+@using DSCapWeb.Core.Models
+
+@if ((TimeBasedPoints is null || !TimeBasedPoints.Any()) &&
+    (ConfirmationBasedPoints is null || !ConfirmationBasedPoints.Any()))
+{
+    <p>No data loaded.</p>
+}
+else
+{
+    <ApexChart TItem="ProbabilityPointDTO"
+               Title="@Title"
+               Options="@ChartOptions">
+
+        <ApexPointSeries TItem="ProbabilityPointDTO"
+                         Items="TimeBasedPoints"
+                         Name="@TimeSeriesName"
+                         XValue="GetXValue"
+                         YValue="GetYValue" />
+
+        <ApexPointSeries TItem="ProbabilityPointDTO"
+                         Items="ConfirmationStepPoints"
+                         Name="@ConfirmationSeriesName"
+                         XValue="GetXValue"
+                         YValue="GetYValue" />
+    </ApexChart>
+}
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string TimeSeriesName { get; set; } = "Time Based";
+
+    [Parameter]
+    public string ConfirmationSeriesName { get; set; } = "Confirmation Based";
+
+    [Parameter]
+    public List<ProbabilityPointDTO> TimeBasedPoints { get; set; } = new();
+
+    [Parameter]
+    public List<ProbabilityPointDTO> ConfirmationBasedPoints { get; set; } = new();
+
+    [Parameter]
+    public int Height { get; set; } = 420;
+
+    private List<ProbabilityPointDTO> ConfirmationStepPoints { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        ConfirmationStepPoints = BuildStepPoints(ConfirmationBasedPoints);
+    }
+
+    private static List<ProbabilityPointDTO> BuildStepPoints(List<ProbabilityPointDTO>? source)
+    {
+        var result = new List<ProbabilityPointDTO>();
+
+        if (source is null || source.Count == 0)
+        {
+            return result;
+        }
+
+        result.Add(new ProbabilityPointDTO
+            {
+                ElapsedSeconds = source[0].ElapsedSeconds,
+                Probability = source[0].Probability
+            });
+
+        for (int i = 1; i < source.Count; i++)
+        {
+            var previous = source[i - 1];
+            var current = source[i];
+
+            result.Add(new ProbabilityPointDTO
+                {
+                    ElapsedSeconds = current.ElapsedSeconds,
+                    Probability = previous.Probability
+                });
+
+            result.Add(new ProbabilityPointDTO
+                {
+                    ElapsedSeconds = current.ElapsedSeconds,
+                    Probability = current.Probability
+                });
+        }
+
+        return result;
+    }
+
+    private object GetXValue(ProbabilityPointDTO point)
+    {
+        return point.ElapsedSeconds;
+    }
+
+    private decimal? GetYValue(ProbabilityPointDTO point)
+    {
+        return (decimal)point.Probability;
+    }
+
+    private ApexChartOptions<ProbabilityPointDTO> ChartOptions => new()
+        {
+            Colors = new List<string> { "#f59e0b", "#ef4444" },
+            Chart = new Chart
+            {
+                Type = ChartType.Line,
+                Height = Height,
+                Zoom = new Zoom
+                {
+                    Enabled = true,
+                    AllowMouseWheelZoom = false,
+                    AutoScaleYaxis = true
+                }
+            },
+            Stroke = new Stroke
+            {
+                Curve = Curve.Straight,
+                Width = new List<double> { 2, 2 },
+                DashArray = new List<double> { 0, 6 }
+            },
+            Xaxis = new XAxis
+            {
+                Title = new AxisTitle
+                {
+                    Text = "Elapsed Seconds"
+                },
+                TickAmount = 10
+            },
+            Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                Min = 0,
+                Title = new AxisTitle
+                {
+                    Text = "Double Spend Probability"
+                },
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"
+function(value) {
+    const num = Number(value);
+    if (!isFinite(num) || num === 0) return '0';
+
+    const expString = num.toExponential(4);
+    const parts = expString.split('e');
+    const mantissa = parts[0];
+    const exponent = parseInt(parts[1], 10);
+
+    const superscriptMap = {
+        '-': '⁻',
+        '0': '⁰',
+        '1': '¹',
+        '2': '²',
+        '3': '³',
+        '4': '⁴',
+        '5': '⁵',
+        '6': '⁶',
+        '7': '⁷',
+        '8': '⁸',
+        '9': '⁹'
+    };
+
+    const expSup = exponent
+        .toString()
+        .split('')
+        .map(ch => superscriptMap[ch] || ch)
+        .join('');
+
+    return mantissa + '×10' + expSup;
+}"
+                }
+            }
+        }
+        };
+}

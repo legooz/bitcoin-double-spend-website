@@ -1,0 +1,221 @@
+﻿@page "/"
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@using Microsoft.AspNetCore.Components.Web
+@using System.Text.RegularExpressions
+
+
+<div class="home-page">
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+
+    <section class="hero-section">
+        <div class="hero-brand">
+            <div class="hero-logo-circle">
+                <img src="/bitcoin-logo.png" alt="Bitcoin Logo" class="hero-logo" />
+            </div>
+
+            <div>
+                <h1 class="hero-title">
+                    <span class="accent">Double Spend</span> Analyzer
+                </h1>
+                <p class="hero-subtitle">
+                    Analyze Bitcoin transactions for double-spend attack probability
+                </p>
+            </div>
+        </div>
+
+        <div class="empty-state">
+            <h2>Enter a Transaction ID</h2>
+            <p>
+                Search for any Bitcoin transaction to analyze its details and
+                calculate the probability of a double-spend attack.
+            </p>
+        </div>
+
+        <div class="search-shell">
+            <input type="text"
+                   class="hero-search-input"
+                   placeholder="Enter Transaction ID (TXID)"
+                   maxlength="64"
+                   spellcheck="false"
+                   autocapitalize="off"
+                   autocomplete="off"
+                   @bind="searchText"
+                   @oninput="HandleInput"
+                   @onkeydown="HandleKeyPress" />
+
+            <button class="hero-search-button" @onclick="Search">
+                Analyze
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(validationMessage))
+        {
+            <p class="value-danger" style="margin-top: 0.75rem;">
+                @validationMessage
+            </p>
+        }
+
+        <h2>What is <em>double spend</em>?</h2>
+        <div class="double-spend-text">
+            <p>
+                Double spending is the act of using the same digital currency
+                more than once in separate transactions. In cryptocurrencies like
+                Bitcoin, this can happen when someone attempts to send the same funds to
+                two different places before the network fully confirms which transaction is valid.
+                This is an important issue because digital information can be copied, so a secure
+                payment system must prevent the same money from being reused. Bitcoin addresses this
+                problem through the blockchain, where transactions are verified and recorded by the
+                network, making it much harder for fraudulent duplicate spending to succeed.
+            </p>
+        </div>
+
+        <h2>Bitcoin</h2>
+
+        <div class="double-spend-text">
+            <p>
+                In Bitcoin, blocks help record the order of transactions, and each new block added
+                after a transaction makes it stronger and harder to change.
+                At the same time, the safety of a transaction depends not just on how many
+                confirmations it has, but also on how long it took to get those confirmations.
+                For example, two transactions can both have the same number of confirmations,
+                but the one that took much longer may still have a higher double-spend risk.
+                This means Bitcoin transactions should be judged by both block confirmations
+                and time since the transaction was broadcast, not by blocks alone.
+            </p>
+
+            <p>
+                Satoshi’s paper explains that Bitcoin secures transactions by placing them into
+                a chain of timestamped blocks, where each additional block makes earlier
+                transactions harder to change. Neumayer’s paper adds that the security of a
+                transaction should not be judged by confirmations alone, but also by how much
+                time has passed since the transaction was broadcast. In other words, Satoshi
+                explains the blockchain structure, while Neumayer explains why time and
+                confirmations together give a better picture of double-spend risk.
+            </p>
+
+            <div class="double-spend-text">
+                <h3>References</h3>
+                <p>
+                    S. Nakamoto, “Bitcoin: A Peer-to-Peer Electronic Cash System,” 2008.<br /><br />
+                    S. Neumayer, M. Varia, and I. Eyal, “An analysis of acceptance policies for
+                    blockchain transactions,” IACR Cryptology ePrint Archive, Rep. 2018/040, 2018.
+                </p>
+            </div>
+        </div>
+
+        <h2>Double-Spend Probability Equation</h2>
+
+        <p>
+            The equation below is used to determine the probability of a particular transaction 
+            is double spent.<br /><br />
+            \( \alpha \) = fraction of attacker hashpower<br /><br />
+            i = the attacker’s current gap compared to the honest chain<br /><br />
+            T = time since transaction broadcast<br /><br />
+            N = number of main chain blocks added since transaction broadcast
+        </p>
+
+        <div class="equation-block">
+            \[
+            P_{\text{double-spend if accepted right now}}(T, N)
+            =
+            \sum_{i=-N}^{0}
+            P_{\text{attacker ahead by }i}(i, T, N)
+            \left(\frac{\alpha}{1-\alpha}\right)^{-i+1}
+            +
+            1 -
+            \sum_{i=-N}^{0}
+            P_{\text{attacker ahead by }i}(i, T, N)
+            \]
+        </div>
+
+        <h2>Example Probability Graphs</h2>
+
+        <div class="image-card">
+            <img src="/abnormal.png" alt="Double spend probability graph 1" class="graph-image" />
+            <div class="image-text-placeholder">
+                <p>
+                    This is an abnormal confirmations over 5 hours with alpha = 0.35
+                </p>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <img src="/normal.png" alt="Double spend probability graph 2" class="graph-image" />
+            <div class="image-text-placeholder">
+                <p>
+                    This is a normal confirmations over 5 hours with alpha = 0.35
+                </p>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <img src="/live.png" alt="Double spend probability graph 3" class="graph-image" />
+            <div class="image-text-placeholder">
+                <p>
+                    This is a live examples with alpha = 0.15
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+
+
+@code {
+    private string searchText = "";
+
+    private string? validationMessage;
+
+    private static readonly Regex TxidRegex = new("^[A-Fa-f0-9]{64}$", RegexOptions.Compiled);
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        searchText = e.Value?.ToString() ?? string.Empty;
+        validationMessage = null;
+    }
+
+    private void Search()
+    {
+        validationMessage = null;
+
+        var cleaned = (searchText ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(cleaned))
+        {
+            validationMessage = "Please enter a transaction hash.";
+            return;
+        }
+
+        if (!IsValidBitcoinTxid(cleaned))
+        {
+            validationMessage = "Please enter a valid Bitcoin transaction hash (64 hexadecimal characters).";
+            return;
+        }
+
+        Nav.NavigateTo($"/search?query={Uri.EscapeDataString(cleaned.ToLowerInvariant())}");
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            Search();
+        }
+    }
+
+    private static bool IsValidBitcoinTxid(string input)
+    {
+        return TxidRegex.IsMatch(input);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("renderMathJax");
+        }
+    }
+}

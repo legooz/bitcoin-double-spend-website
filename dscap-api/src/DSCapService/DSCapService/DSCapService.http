@@ -1,0 +1,6 @@
+@DSCapService_HostAddress = http://localhost:5037
+
+GET {{DSCapService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

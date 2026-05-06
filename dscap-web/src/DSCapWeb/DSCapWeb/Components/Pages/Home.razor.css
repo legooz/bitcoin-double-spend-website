@@ -1,0 +1,230 @@
+﻿.home-page {
+    min-height: calc(100vh - 3.5rem);
+    background: linear-gradient(180deg, #050816 0%, #040814 100%);
+    color: #f5f7fb;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    margin-top: 3rem;
+    margin-bottom: 4rem;
+}
+
+.double-spend-text p {
+    text-align: left;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    line-height: 1.5rem;
+}
+
+.hero-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.hero-logo-circle {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    background: rgba(244, 156, 52, 0.08);
+    border: 1px solid rgba(244, 156, 52, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(244, 156, 52, 0.12);
+}
+
+.hero-logo {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.accent {
+    color: #e89a3d;
+}
+
+.hero-subtitle {
+    margin-top: 0.9rem;
+    color: #9aa7c7;
+    font-size: 1.15rem;
+}
+
+.search-shell {
+    margin: 2.5rem auto 5rem;
+    max-width: 980px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem;
+    border-radius: 1.2rem;
+    background: rgba(18, 27, 58, 0.92);
+    border: 1px solid rgba(82, 101, 158, 0.2);
+    box-shadow: 0 0 35px rgba(232, 154, 61, 0.08);
+}
+
+.hero-search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: rgba(10, 17, 40, 0.95);
+    color: #f5f7fb;
+    font-size: 1.1rem;
+    padding: 1.15rem 1.25rem;
+    border-radius: 0.95rem;
+}
+
+    .hero-search-input::placeholder {
+        color: #6f7b98;
+    }
+
+.hero-search-button {
+    border: none;
+    background: #a87133;
+    color: #0d111b;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 1rem 1.6rem;
+    border-radius: 0.95rem;
+    min-width: 150px;
+    transition: 0.2s ease;
+}
+
+    .hero-search-button:hover {
+        background: #bf8440;
+    }
+
+.empty-icon {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    background: rgba(18, 27, 58, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #93a2c4;
+    font-size: 3rem;
+}
+
+.empty-state h2 {
+    font-size: 2.1rem;
+    font-weight: 800;
+    margin-top: 2rem;
+}
+
+.empty-state p {
+    color: #93a2c4;
+    font-size: 1.25rem;
+    line-height: 1.7;
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+
+.hero-glow {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(90px);
+    pointer-events: none;
+}
+
+.hero-glow-1 {
+    width: 320px;
+    height: 320px;
+    top: -40px;
+    left: 18%;
+    background: rgba(232, 154, 61, 0.12);
+}
+
+.hero-glow-2 {
+    width: 360px;
+    height: 360px;
+    bottom: 8%;
+    right: 18%;
+    background: rgba(232, 154, 61, 0.08);
+}
+
+.info-card,
+.image-card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.graph-image {
+    width: 100%;
+    max-width: 900px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 12px;
+}
+
+.image-text-placeholder {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: none;
+    background: transparent;
+}
+
+.equation-block {
+    margin: 1.5rem 0 2rem 0;
+    text-align: center;
+    font-size: 0.9rem;
+    overflow-x: hidden;
+}
+
+.equation-block mjx-container {
+    max-width: 100%;
+    overflow-x: hidden !important;
+}
+
+.equation-block svg {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .search-shell {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-search-button {
+        width: 100%;
+    }
+
+    .empty-state h2 {
+        font-size: 1.7rem;
+    }
+
+    .empty-state p {
+        font-size: 1.05rem;
+    }
+}

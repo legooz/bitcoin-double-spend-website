@@ -1,0 +1,41 @@
+﻿<div class="mb-4">
+    <p>
+        <strong>Confirmations:</strong> @Confirmations
+        @if (IsLiveConnected)
+        {
+            <span class="ms-2 badge bg-success">Live</span>
+        }
+    </p>
+
+    <p>
+        <strong>Probability:</strong> @DoubleSpendProbability.ToString("E6")
+    </p>
+
+    <p>
+        <strong>Elapsed Time:</strong> @ElapsedTime.ToString("F2")
+    </p>
+
+    @if (LastUpdatedUtc.HasValue)
+    {
+        <p>
+            <strong>Last Live Update (UTC):</strong> @LastUpdatedUtc
+        </p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Confirmations { get; set; }
+
+    [Parameter]
+    public double DoubleSpendProbability { get; set; }
+
+    [Parameter]
+    public double ElapsedTime { get; set; }
+
+    [Parameter]
+    public DateTime? LastUpdatedUtc { get; set; }
+
+    [Parameter]
+    public bool IsLiveConnected { get; set; }
+}
