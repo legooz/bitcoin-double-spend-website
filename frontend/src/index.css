@@ -457,6 +457,78 @@ h1, h2, h3, h4 {
   color: var(--red);
 }
 
+/* --- Explainer (landing educational content) --- */
+.explainer {
+  max-width: 760px;
+  margin: 2.5rem auto 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.explainer-intro {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.explainer-intro h2 {
+  color: var(--text);
+  font-size: 1.9rem;
+  margin: 0 0 0.5rem;
+}
+
+.explainer h2 {
+  color: var(--text);
+  font-size: 1.4rem;
+  margin: 2.25rem 0 0.6rem;
+}
+
+.explainer h3 {
+  color: var(--text);
+  font-size: 1.05rem;
+  margin: 2.25rem 0 0.5rem;
+}
+
+.explainer p {
+  margin: 0 0 1rem;
+}
+
+.var-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.var-list li {
+  color: var(--text);
+}
+
+.equation-block {
+  background: var(--card-a);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 1.5rem 1rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  color: #f5f7fb;
+  text-align: center;
+  font-size: 0.72rem;
+}
+
+.equation-block .katex-display {
+  margin: 0;
+}
+
+.equation-inline {
+  color: var(--accent);
+}
+
+.refs {
+  font-size: 0.85rem;
+}
+
 .footer {
   margin-top: 3rem;
   color: var(--muted-2);
