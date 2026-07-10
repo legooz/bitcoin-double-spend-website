@@ -39,6 +39,11 @@ export function AnalysisCard({
         <div className="data-label">ATTACK PROBABILITY</div>
         <div className="probability-text">{isCoinbase ? 'N/A' : formatProbability(probability)}</div>
         <div className={`risk-text ${risk.className}`}>{risk.label}</div>
+        {!isCoinbase && (
+          <p className="assumption-note">
+            Theoretical estimate that assumes an attacker controls α of the network's hash power.
+          </p>
+        )}
       </div>
 
       <div className="meta-row">

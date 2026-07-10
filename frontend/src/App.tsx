@@ -45,6 +45,9 @@ export default function App() {
       const result = await fetchTransaction(txid, alpha);
       setSummary(result);
       setActiveTxid(txid);
+      // Reflect the loaded transaction in the URL so it's shareable / refresh-safe.
+      const params = new URLSearchParams({ txid, alpha: alpha.toFixed(2) });
+      window.history.replaceState(null, '', `?${params.toString()}`);
       if (!result.is_coinbase) {
         fetchHistory(txid, alpha)
           .then(setHistory)
@@ -63,6 +66,20 @@ export default function App() {
       setLoading(false);
     }
   }, []);
+
+  // Deep-link: on first render, load a transaction from ?txid=&alpha= if present.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const txid = params.get('txid');
+    if (txid && /^[0-9a-fA-F]{64}$/.test(txid)) {
+      const parsed = parseFloat(params.get('alpha') ?? '');
+      const alpha = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0.01), 0.49) : committedAlpha;
+      setCommittedAlpha(alpha);
+      setPendingAlpha(alpha);
+      load(txid.toLowerCase(), alpha);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [load]);
 
   const handleSearch = (txid: string) => load(txid, committedAlpha);
 
@@ -90,6 +107,7 @@ export default function App() {
     setError(null);
     setLoading(false);
     setSearchResetKey((key) => key + 1); // remount SearchBar to clear its input
+    window.history.replaceState(null, '', window.location.pathname);
   };
 
   const liveProbability = latest?.probability ?? summary?.probability ?? 0;
