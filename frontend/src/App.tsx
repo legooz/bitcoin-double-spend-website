@@ -182,7 +182,11 @@ export default function App() {
               onAlphaChange={setPendingAlpha}
               onAlphaCommit={commitAlpha}
             />
-            <SummaryPanel tx={summary} liveConfirmations={liveConfirmations} />
+            <SummaryPanel
+              tx={summary}
+              liveConfirmations={liveConfirmations}
+              explorerLink={dataSource === 'esplora'}
+            />
           </div>
 
           {summary.is_coinbase ? (
