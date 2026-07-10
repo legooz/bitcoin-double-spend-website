@@ -26,6 +26,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dataSource, setDataSource] = useState<string>('demo');
+  const [searchResetKey, setSearchResetKey] = useState(0);
 
   const canStream = summary != null && !summary.is_coinbase;
   const { latest, points, status } = useProbabilityStream(activeTxid, committedAlpha, canStream);
@@ -82,13 +83,34 @@ export default function App() {
     }
   };
 
+  const resetToHome = () => {
+    setSummary(null);
+    setActiveTxid(null);
+    setHistory(null);
+    setError(null);
+    setLoading(false);
+    setSearchResetKey((key) => key + 1); // remount SearchBar to clear its input
+  };
+
   const liveProbability = latest?.probability ?? summary?.probability ?? 0;
   const liveConfirmations = latest?.confirmations ?? summary?.confirmations ?? 0;
   const liveElapsed = latest?.elapsed_time ?? 0;
 
   return (
     <div className="app">
-      <header className="hero-brand">
+      <header
+        className="hero-brand clickable"
+        role="button"
+        tabIndex={0}
+        aria-label="Return to home"
+        onClick={resetToHome}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            resetToHome();
+          }
+        }}
+      >
         <div className="hero-logo-circle">
           <img src="/bitcoin-logo.png" alt="Bitcoin logo" className="hero-logo" />
         </div>
@@ -100,7 +122,7 @@ export default function App() {
         </div>
       </header>
 
-      <SearchBar onSearch={handleSearch} disabled={loading} />
+      <SearchBar key={searchResetKey} onSearch={handleSearch} disabled={loading} />
 
       {samples.length > 0 && (
         <div className="controls-extra">
@@ -119,7 +141,7 @@ export default function App() {
             Load a live mempool transaction
           </button>
           <span className="samples-label">
-            Real unconfirmed transaction from the network — watch its double-spend risk in real time.
+            Real unconfirmed transaction from the network. Watch its double-spend risk in real time.
           </span>
         </div>
       )}
@@ -147,7 +169,7 @@ export default function App() {
 
           {summary.is_coinbase ? (
             <p className="notice">
-              Coinbase (block-reward) transaction — no inputs to double-spend, so no risk is computed.
+              Coinbase (block-reward) transaction: it has no inputs to double-spend, so no risk is computed.
             </p>
           ) : (
             <section className="graphs-section">

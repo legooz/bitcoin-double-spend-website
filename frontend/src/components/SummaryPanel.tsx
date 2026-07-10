@@ -41,7 +41,7 @@ export function SummaryPanel({ tx, liveConfirmations }: { tx: TransactionSummary
 
         <div className="summary-card">
           <div className="section-title">BLOCK HASH</div>
-          <div className="hash-text">{tx.blockhash || '—'}</div>
+          <div className="hash-text">{tx.blockhash || 'N/A'}</div>
         </div>
       </div>
 
