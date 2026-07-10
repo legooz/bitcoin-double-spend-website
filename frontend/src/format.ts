@@ -20,16 +20,20 @@ export function formatBtc(value: number): string {
   return `${value.toFixed(8)} BTC`;
 }
 
+export function formatUtc(unixSeconds: number): string {
+  if (unixSeconds < 0) return 'Mempool';
+  return `${new Date(unixSeconds * 1000).toISOString().replace('T', ' ').slice(0, 19)} UTC`;
+}
+
 export interface RiskLevel {
   label: string;
   className: string;
 }
 
-export function riskLevel(probability: number, confirmations: number, isCoinbase: boolean): RiskLevel {
-  if (isCoinbase) return { label: 'Coinbase (no risk)', className: 'risk-safe' };
-  if (confirmations >= 6) return { label: 'Confirmed / negligible', className: 'risk-safe' };
-  if (probability < 0.01) return { label: 'Negligible risk', className: 'risk-safe' };
-  if (probability < 0.1) return { label: 'Low risk', className: 'risk-low' };
-  if (probability < 0.5) return { label: 'Moderate risk', className: 'risk-moderate' };
-  return { label: 'High risk', className: 'risk-high' };
+export function riskLevel(probability: number, _confirmations: number, isCoinbase: boolean): RiskLevel {
+  if (isCoinbase) return { label: 'Coinbase — no double-spend risk', className: 'value-warning' };
+  if (probability < 0.01) return { label: 'Negligible risk', className: 'value-success' };
+  if (probability < 0.1) return { label: 'Low risk', className: 'value-success' };
+  if (probability < 0.5) return { label: 'Moderate risk', className: 'value-warning' };
+  return { label: 'High risk', className: 'value-danger' };
 }

@@ -8,11 +8,10 @@ import {
   fetchSamples,
   fetchTransaction,
 } from './api/client';
+import { AnalysisCard } from './components/AnalysisCard';
 import { ProbabilityChart } from './components/ProbabilityChart';
-import { SampleList } from './components/SampleList';
 import { SearchBar } from './components/SearchBar';
-import { StatsPanel } from './components/StatsPanel';
-import { TransactionDetails } from './components/TransactionDetails';
+import { SummaryPanel } from './components/SummaryPanel';
 import { useProbabilityStream } from './hooks/useProbabilityStream';
 import type { HistoryResponse, SampleTransaction, TransactionSummary } from './types';
 
@@ -51,7 +50,13 @@ export default function App() {
       }
     } catch (err) {
       setActiveTxid(null);
-      setError(err instanceof ApiError ? err.message : 'Failed to load transaction.');
+      setError(
+        err instanceof ApiError && err.status === 404
+          ? 'Transaction not found. In demo mode only the sample transactions resolve; switch the API to esplora mode for real transaction ids.'
+          : err instanceof ApiError
+            ? err.message
+            : 'Failed to load transaction.',
+      );
     } finally {
       setLoading(false);
     }
@@ -82,96 +87,108 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>
-          <span className="accent">₿</span> Bitcoin Double-Spend Risk
-        </h1>
-        <p className="subtitle">
-          Estimate the probability a transaction could still be reversed, in real time.
-        </p>
+      <header className="hero-brand">
+        <div className="hero-logo-circle">
+          <img src="/bitcoin-logo.png" alt="Bitcoin logo" className="hero-logo" />
+        </div>
+        <div>
+          <h1 className="hero-title">
+            <span className="accent">Double Spend</span> Analyzer
+          </h1>
+          <p className="hero-subtitle">Analyze Bitcoin transactions for double-spend attack probability</p>
+        </div>
       </header>
 
-      <section className="controls">
-        <SearchBar onSearch={handleSearch} disabled={loading} />
+      <SearchBar onSearch={handleSearch} disabled={loading} />
 
-        <div className="alpha-control">
-          <label>
-            Attacker hash power (α): <strong>{pendingAlpha.toFixed(2)}</strong>
-          </label>
-          <input
-            type="range"
-            min="0.01"
-            max="0.49"
-            step="0.01"
-            value={pendingAlpha}
-            onChange={(e) => setPendingAlpha(parseFloat(e.target.value))}
-            onPointerUp={commitAlpha}
-            onKeyUp={commitAlpha}
-          />
-        </div>
-
-        <SampleList samples={samples} onSelect={handleSearch} />
-
-        {dataSource === 'esplora' && (
-          <div className="mempool-cta">
-            <button onClick={loadMempoolSample} disabled={loading}>
-              Load a live mempool transaction
+      {samples.length > 0 && (
+        <div className="controls-extra">
+          <span className="samples-label">Try a sample:</span>
+          {samples.map((sample) => (
+            <button key={sample.txid} className="sample-chip" onClick={() => handleSearch(sample.txid)}>
+              {sample.label}
             </button>
-            <span className="samples-label">
-              Real unconfirmed transaction from the network — watch its double-spend risk in real time.
-            </span>
-          </div>
-        )}
-      </section>
+          ))}
+        </div>
+      )}
+
+      {dataSource === 'esplora' && (
+        <div className="mempool-cta">
+          <button className="hero-search-button" onClick={loadMempoolSample} disabled={loading}>
+            Load a live mempool transaction
+          </button>
+          <span className="samples-label">
+            Real unconfirmed transaction from the network — watch its double-spend risk in real time.
+          </span>
+        </div>
+      )}
 
       {loading && <p className="notice">Loading…</p>}
-      {error && <p className="error notice">{error}</p>}
+      {error && <p className="notice error">{error}</p>}
 
       {summary && (
         <main className="results">
-          <div className="top-grid">
-            <StatsPanel
+          <div className="transaction-layout">
+            <AnalysisCard
               probability={liveProbability}
               confirmations={liveConfirmations}
               elapsed={liveElapsed}
               isCoinbase={summary.is_coinbase}
               status={status}
+              pendingAlpha={pendingAlpha}
+              onAlphaChange={setPendingAlpha}
+              onAlphaCommit={commitAlpha}
             />
-            <TransactionDetails tx={summary} />
+            <SummaryPanel tx={summary} liveConfirmations={liveConfirmations} />
           </div>
 
           {summary.is_coinbase ? (
             <p className="notice">
-              This is a coinbase (block-reward) transaction. It has no inputs to double-spend, so no
-              risk is computed.
+              Coinbase (block-reward) transaction — no inputs to double-spend, so no risk is computed.
             </p>
           ) : (
-            <div className="charts">
-              <ProbabilityChart points={points} title="Live probability (streaming)" color="#f7931a" />
-              {history && (
-                <>
-                  <ProbabilityChart
-                    points={history.first_5h.points}
-                    title="Modeled decay — first 5 hours"
-                    color="#4ea8de"
-                  />
-                  <ProbabilityChart
-                    points={history.full_graph.points}
-                    title="Modeled decay — full history"
-                    color="#57cc99"
-                  />
-                </>
-              )}
-            </div>
+            <section className="graphs-section">
+              <h2 className="graphs-title">Probability Graphs</h2>
+              <p className="graphs-subtitle">
+                α {committedAlpha.toFixed(2)} · {history ? 'modeled decay + live stream' : 'live stream'}
+              </p>
+              <div className="graph-grid">
+                <div className="graph-card graph-card-wide">
+                  <div className="graph-card-title">Live Probability</div>
+                  <div className="graph-card-subtitle">Incoming websocket updates over elapsed time.</div>
+                  <div className="graph-surface">
+                    <ProbabilityChart points={points} color="#e89a3d" height={320} />
+                  </div>
+                </div>
+                {history && (
+                  <>
+                    <div className="graph-card">
+                      <div className="graph-card-title">First 5 Hours</div>
+                      <div className="graph-card-subtitle">Modeled probability during the first five hours.</div>
+                      <div className="graph-surface">
+                        <ProbabilityChart points={history.first_5h.points} color="#3b82f6" />
+                      </div>
+                    </div>
+                    <div className="graph-card">
+                      <div className="graph-card-title">Full History</div>
+                      <div className="graph-card-subtitle">Modeled decay across the transaction's life.</div>
+                      <div className="graph-surface">
+                        <ProbabilityChart points={history.full_graph.points} color="#22c55e" />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </section>
           )}
         </main>
       )}
 
       <footer className="footer">
         <p>
-          Portfolio demo. The probability model is real; sample transactions are simulated so the app
-          runs without a Bitcoin node. Point it at a live node by setting the API's data source to
-          <code> rpc</code>.
+          Portfolio demo. The probability model is real; in demo mode sample transactions are simulated so
+          the app runs without a Bitcoin node. Set the API's <code>DSCAP_DATA_SOURCE</code> to{' '}
+          <code>esplora</code> for live mainnet data.
         </p>
       </footer>
     </div>
