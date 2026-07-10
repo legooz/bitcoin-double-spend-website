@@ -63,6 +63,17 @@ h1, h2, h3, h4 {
   text-align: center;
 }
 
+.hero-brand.clickable {
+  cursor: pointer;
+  border-radius: 14px;
+  outline: none;
+}
+
+.hero-brand.clickable:hover .hero-title,
+.hero-brand.clickable:focus-visible .hero-title {
+  opacity: 0.9;
+}
+
 .hero-logo-circle {
   width: 92px;
   height: 92px;

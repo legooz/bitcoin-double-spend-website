@@ -12,7 +12,7 @@ export function Explainer() {
         <h2>Enter a transaction ID above</h2>
         <p>
           Search any Bitcoin transaction to see its details and the probability of a double-spend
-          attack — or try a sample, or load a live mempool transaction.
+          attack. You can also try a sample, or load a live mempool transaction.
         </p>
       </div>
 
@@ -33,7 +33,7 @@ export function Explainer() {
         many confirmations it has, but also on how long those confirmations took. Two transactions can
         have the same number of confirmations, yet the one that took much longer to get them may still
         carry a higher double-spend risk. So transactions should be judged by block confirmations
-        <em> and </em> the time since they were broadcast — not by blocks alone.
+        <em> and </em> the time since they were broadcast, not by blocks alone.
       </p>
       <p>
         Satoshi Nakamoto's paper explains that Bitcoin secures transactions by placing them in a chain
@@ -48,16 +48,16 @@ export function Explainer() {
       <p>The equation below estimates the probability that a transaction could be double spent, where:</p>
       <ul className="var-list">
         <li>
-          <Equation math="\alpha" /> — the fraction of network hash power the attacker controls
+          <Equation math="\alpha" /> is the fraction of network hash power the attacker controls
         </li>
         <li>
-          <Equation math="i" /> — the attacker's current lead or gap versus the honest chain
+          <Equation math="i" /> is the attacker's current lead or gap versus the honest chain
         </li>
         <li>
-          <Equation math="T" /> — time elapsed since the transaction was broadcast
+          <Equation math="T" /> is the time elapsed since the transaction was broadcast
         </li>
         <li>
-          <Equation math="N" /> — number of main-chain blocks added since the broadcast
+          <Equation math="N" /> is the number of main-chain blocks added since the broadcast
         </li>
       </ul>
 
@@ -65,7 +65,7 @@ export function Explainer() {
 
       <p>
         Intuitively, more confirmations (<Equation math="N" />) lowers the risk, while more elapsed
-        time (<Equation math="T" />) at a fixed number of confirmations raises it — which is exactly
+        time (<Equation math="T" />) at a fixed number of confirmations raises it, which is exactly
         why both matter.
       </p>
 
