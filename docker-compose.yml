@@ -1,0 +1,20 @@
+# Local full-stack run: `docker compose up --build`
+# Frontend: http://localhost:8080   API: http://localhost:8000
+services:
+  backend:
+    build: ./backend
+    environment:
+      DSCAP_DATA_SOURCE: demo
+      DSCAP_CORS_ORIGINS: http://localhost:8080
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
