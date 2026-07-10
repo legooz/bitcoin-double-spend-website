@@ -8,8 +8,9 @@ import {
   fetchSamples,
   fetchTransaction,
 } from './api/client';
-import { AnalysisCard } from './components/AnalysisCard';
+import { AlphaControl } from './components/AlphaControl';
 import { Explainer } from './components/Explainer';
+import { ProbabilityCard } from './components/ProbabilityCard';
 import { ProbabilityChart } from './components/ProbabilityChart';
 import { SearchBar } from './components/SearchBar';
 import { SummaryPanel } from './components/SummaryPanel';
@@ -171,23 +172,15 @@ export default function App() {
 
       {summary && (
         <main className="results">
-          <div className="transaction-layout">
-            <AnalysisCard
-              probability={liveProbability}
-              confirmations={liveConfirmations}
-              elapsed={liveElapsed}
-              isCoinbase={summary.is_coinbase}
-              status={status}
-              pendingAlpha={pendingAlpha}
-              onAlphaChange={setPendingAlpha}
-              onAlphaCommit={commitAlpha}
-            />
-            <SummaryPanel
-              tx={summary}
-              liveConfirmations={liveConfirmations}
-              explorerLink={dataSource === 'esplora'}
-            />
-          </div>
+          <AlphaControl pendingAlpha={pendingAlpha} onChange={setPendingAlpha} onCommit={commitAlpha} />
+
+          <ProbabilityCard
+            probability={liveProbability}
+            confirmations={liveConfirmations}
+            elapsed={liveElapsed}
+            isCoinbase={summary.is_coinbase}
+            status={status}
+          />
 
           {summary.is_coinbase ? (
             <p className="notice">
@@ -228,6 +221,12 @@ export default function App() {
               </div>
             </section>
           )}
+
+          <SummaryPanel
+            tx={summary}
+            liveConfirmations={liveConfirmations}
+            explorerLink={dataSource === 'esplora'}
+          />
         </main>
       )}
 

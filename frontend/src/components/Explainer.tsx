@@ -1,4 +1,6 @@
+import { EXAMPLE_ALPHA, exampleFast, exampleMempool, exampleNormal } from '../exampleGraphs';
 import { Equation } from './Equation';
+import { ProbabilityChart } from './ProbabilityChart';
 
 const FORMULA =
   'P_{\\text{double-spend if accepted now}}(T, N) = ' +
@@ -68,6 +70,40 @@ export function Explainer() {
         time (<Equation math="T" />) at a fixed number of confirmations raises it, which is exactly
         why both matter.
       </p>
+      <p>
+        The model takes a worst case: the attacker starts on equal footing with the honest chain the
+        moment the transaction is broadcast, and mines a competing chain continuously. That makes the
+        result an upper bound on risk, not a prediction that an attack will happen.
+      </p>
+
+      <h2>Example scenarios (α = {EXAMPLE_ALPHA})</h2>
+      <p>
+        The same transaction is far riskier the longer it stays unconfirmed, and safer the faster it
+        confirms:
+      </p>
+      <div className="example-graphs">
+        <div className="example-graph">
+          <div className="graph-card-title">Stuck in the mempool</div>
+          <div className="graph-card-subtitle">0 confirmations, so the risk climbs with time.</div>
+          <div className="graph-surface">
+            <ProbabilityChart points={exampleMempool} color="#ef4444" height={190} />
+          </div>
+        </div>
+        <div className="example-graph">
+          <div className="graph-card-title">Normal confirmations</div>
+          <div className="graph-card-subtitle">About one block every 10 minutes; the risk decays.</div>
+          <div className="graph-surface">
+            <ProbabilityChart points={exampleNormal} color="#e89a3d" height={190} />
+          </div>
+        </div>
+        <div className="example-graph">
+          <div className="graph-card-title">Fast confirmations</div>
+          <div className="graph-card-subtitle">About one block every 3 minutes; the risk collapses fast.</div>
+          <div className="graph-surface">
+            <ProbabilityChart points={exampleFast} color="#22c55e" height={190} />
+          </div>
+        </div>
+      </div>
 
       <h3>References</h3>
       <p className="refs">
