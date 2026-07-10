@@ -22,21 +22,25 @@ export function SearchBar({ onSearch, disabled }: Props) {
   };
 
   return (
-    <div className="search">
-      <div className="search-row">
+    <>
+      <div className="search-shell">
         <input
+          className="hero-search-input"
           type="text"
-          value={value}
           spellCheck={false}
-          placeholder="Bitcoin transaction id (64 hex characters)"
+          autoCapitalize="off"
+          autoComplete="off"
+          maxLength={64}
+          placeholder="Enter Transaction ID (TXID)"
+          value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
         />
-        <button onClick={submit} disabled={disabled}>
+        <button className="hero-search-button" onClick={submit} disabled={disabled}>
           Analyze
         </button>
       </div>
-      {error && <p className="error">{error}</p>}
-    </div>
+      {error && <p className="notice error">{error}</p>}
+    </>
   );
 }
