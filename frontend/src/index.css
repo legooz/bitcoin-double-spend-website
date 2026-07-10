@@ -352,6 +352,36 @@ h1, h2, h3, h4 {
   font-size: 0.9rem;
 }
 
+.txid-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.txid-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.txid-link:hover {
+  text-decoration: underline;
+}
+
+.copy-btn {
+  flex-shrink: 0;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.copy-btn:hover {
+  border-color: var(--accent);
+}
+
 .io-grid {
   display: grid;
   grid-template-columns: 1fr;
