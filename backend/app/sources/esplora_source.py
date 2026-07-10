@@ -32,7 +32,7 @@ from app.models import (
     TransactionOutput,
     TransactionSummary,
 )
-from app.probability.equations import p_double_spend_if_accepted_now
+from app.probability.equations import double_spend_probability, p_double_spend_if_accepted_now
 from app.probability.lttb import choose_threshold, downsample
 
 _SATS_PER_BTC = 100_000_000
@@ -146,7 +146,7 @@ class EsploraSource:
         probability = 0.0
         if not is_coinbase and blocktime > 0:
             elapsed = max(0.0, time.time() - blocktime)
-            probability = p_double_spend_if_accepted_now(elapsed, confirmations, alpha)
+            probability = double_spend_probability(elapsed, confirmations, alpha)
 
         return TransactionSummary(
             txid=tx["txid"],
@@ -173,7 +173,7 @@ class EsploraSource:
 
         while True:
             elapsed = max(0.0, time.time() - blocktime)
-            probability = p_double_spend_if_accepted_now(elapsed, confirmations, alpha)
+            probability = double_spend_probability(elapsed, confirmations, alpha)
             yield ProbabilityUpdate(
                 confirmations=confirmations,
                 probability=probability,
@@ -210,7 +210,7 @@ class EsploraSource:
         full_rows: list[tuple[float, float]] = []
         for confirmations in range(1, max_confirmations + 1):
             elapsed = (confirmations - 1) * _AVG_BLOCK_SECONDS
-            probability = p_double_spend_if_accepted_now(elapsed, confirmations, alpha)
+            probability = double_spend_probability(elapsed, confirmations, alpha)
             full_rows.append((float(elapsed), float(probability)))
 
         limit = min(_FIVE_HOURS_SECONDS, int(full_rows[-1][0]))

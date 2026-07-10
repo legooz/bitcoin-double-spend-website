@@ -44,6 +44,20 @@ def test_higher_attacker_power_means_higher_risk():
     assert strong > weak
 
 
+def test_deep_confirmations_short_circuit_to_zero():
+    # A deeply-confirmed transaction is ~0 risk; the wrapper returns 0 directly
+    # instead of running the O(n) computation over ~900k confirmations.
+    from app.probability.equations import double_spend_probability
+
+    assert double_spend_probability(5e8, 900_000, 0.3) == 0.0
+
+
+def test_wrapper_matches_formula_below_cap():
+    from app.probability.equations import double_spend_probability
+
+    assert double_spend_probability(600, 3, 0.3) == p_double_spend_if_accepted_now(600, 3, 0.3)
+
+
 def test_rejects_alpha_out_of_domain():
     with pytest.raises(ValueError):
         p_double_spend_if_accepted_now(600, 1, 0.6)
