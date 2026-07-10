@@ -29,7 +29,7 @@ from app.models import (
     TransactionOutput,
     TransactionSummary,
 )
-from app.probability.equations import p_double_spend_if_accepted_now
+from app.probability.equations import double_spend_probability, p_double_spend_if_accepted_now
 from app.probability.lttb import choose_threshold, downsample
 
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
@@ -95,7 +95,7 @@ class RpcSource:
         probability = 0.0
         if not is_coinbase and blocktime > 0:
             elapsed = max(0.0, _now() - blocktime)
-            probability = p_double_spend_if_accepted_now(elapsed, confirmations, alpha)
+            probability = double_spend_probability(elapsed, confirmations, alpha)
 
         return TransactionSummary(
             txid=tx["txid"],
@@ -121,7 +121,7 @@ class RpcSource:
 
         while True:
             elapsed = max(0.0, _now() - blocktime)
-            probability = p_double_spend_if_accepted_now(elapsed, confirmations, alpha)
+            probability = double_spend_probability(elapsed, confirmations, alpha)
             yield ProbabilityUpdate(
                 confirmations=confirmations,
                 probability=probability,

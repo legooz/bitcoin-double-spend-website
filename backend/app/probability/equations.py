@@ -15,6 +15,13 @@ import math
 
 from scipy.stats import poisson
 
+# Beyond this many confirmations the double-spend probability is negligibly
+# small (effectively zero). The computation below is O(n) in confirmations, so
+# callers cap the confirmation count at this value before computing — otherwise
+# a deeply-confirmed transaction (hundreds of thousands of confirmations) would
+# take seconds to evaluate for a result that is zero either way.
+NEGLIGIBLE_CONFIRMATION_CAP = 100
+
 
 def _log_poisson_pmf(k: int, mu: float) -> float:
     if k < 0:
@@ -70,3 +77,17 @@ def p_double_spend_if_accepted_now(
 
     p_ds = sum_catchup + tail_prob
     return max(0.0, min(1.0, p_ds))
+
+
+def double_spend_probability(t_seconds: float, n: int, alpha: float) -> float:
+    """Double-spend probability, short-circuiting deeply-confirmed transactions.
+
+    For n >= NEGLIGIBLE_CONFIRMATION_CAP the true probability is negligibly
+    small, so we return 0.0 without running the O(n) computation — otherwise a
+    transaction with hundreds of thousands of confirmations would take seconds
+    to evaluate. Below the cap this is identical to
+    ``p_double_spend_if_accepted_now``.
+    """
+    if n >= NEGLIGIBLE_CONFIRMATION_CAP:
+        return 0.0
+    return p_double_spend_if_accepted_now(t_seconds, n, alpha)
