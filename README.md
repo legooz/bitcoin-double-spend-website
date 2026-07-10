@@ -4,11 +4,14 @@ A real-time web app that estimates the probability a Bitcoin transaction could
 still be **double-spent** (reversed by an attacker mining a competing chain),
 and streams that probability live as time passes and confirmations accumulate.
 
-> **Live demo:** _add your deployed URL here_
+> **Live demo:** https://bitcoin-double-spend-website.vercel.app
 >
-> The probability model is real applied math. Sample transactions are simulated
-> so the app runs anywhere with no Bitcoin node — flip one environment variable
-> to point it at a real node instead.
+> The probability model is real applied math. In demo mode, sample transactions
+> are simulated so the app runs anywhere with no Bitcoin node; in `esplora` mode
+> it uses real mainnet data (including live mempool transactions) through a free
+> public API, still with no node required.
+
+![Double Spend Analyzer](docs/screenshot.png)
 
 ---
 
@@ -31,7 +34,7 @@ the probability becomes astronomically small. See
 [`backend/app/probability/equations.py`](backend/app/probability/equations.py).
 
 A subtle, correct property the tests pin down: with confirmations held fixed,
-risk *rises* with elapsed time (the attacker gains ground) — but in practice
+risk *rises* with elapsed time (the attacker gains ground), but in practice
 confirmations arrive faster than that effect, so the live curve trends down.
 
 ## Architecture
@@ -45,12 +48,15 @@ React + TypeScript (Vite)          FastAPI (Python)                Probability e
                                                                   └──────────────────┘
 ```
 
-The API depends only on a `BitcoinSource` interface. Two implementations plug in
-behind it, chosen by config:
+The API depends only on a `BitcoinSource` interface. Three implementations plug
+in behind it, chosen by config:
 
-- **`demo`** (default) — a self-contained simulator with sample transactions.
+- **`demo`** (default): a self-contained simulator with sample transactions.
   No node, no blockchain download, safe to deploy publicly.
-- **`rpc`** — a real, fully-synced Bitcoin Core node (`txindex=1`, JSON-RPC).
+- **`esplora`**: real mainnet data via the free public mempool.space /
+  Blockstream API, including live mempool (unconfirmed) transactions. No node,
+  no API key.
+- **`rpc`**: a real, fully-synced Bitcoin Core node (`txindex=1`, JSON-RPC).
 
 Swapping them is a single environment variable (`DSCAP_DATA_SOURCE`), which is
 what makes the project both a live demo and a real tool.
@@ -63,7 +69,7 @@ docker-compose.yml, .github/workflows/ci.yml
 
 ## Run it locally
 
-### Option A — Docker (both services)
+### Option A: Docker (both services)
 
 ```bash
 docker compose up --build
@@ -71,7 +77,7 @@ docker compose up --build
 # api      → http://localhost:8000
 ```
 
-### Option B — run each service directly
+### Option B: run each service directly
 
 Backend:
 
