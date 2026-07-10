@@ -220,6 +220,91 @@ h1, h2, h3, h4 {
 /* --- Results layout --- */
 .results {
   margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.controls-bar .alpha-block {
+  flex: 1;
+  min-width: 220px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.controls-bar label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.probability-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prob-main {
+  min-width: 240px;
+}
+
+.prob-stats {
+  display: flex;
+  gap: 1.75rem;
+}
+
+.prob-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.stat-label {
+  color: var(--muted-2);
+  font-size: 0.75rem;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.example-graphs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.example-graph {
+  background: linear-gradient(135deg, var(--card-a), var(--card-b));
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 0.9rem;
+}
+
+@media (max-width: 760px) {
+  .example-graphs {
+    grid-template-columns: 1fr;
+  }
+
+  .prob-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .transaction-layout {
