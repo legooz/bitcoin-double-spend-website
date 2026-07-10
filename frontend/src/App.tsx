@@ -9,6 +9,7 @@ import {
   fetchTransaction,
 } from './api/client';
 import { AnalysisCard } from './components/AnalysisCard';
+import { Explainer } from './components/Explainer';
 import { ProbabilityChart } from './components/ProbabilityChart';
 import { SearchBar } from './components/SearchBar';
 import { SummaryPanel } from './components/SummaryPanel';
@@ -125,6 +126,8 @@ export default function App() {
 
       {loading && <p className="notice">Loading…</p>}
       {error && <p className="notice error">{error}</p>}
+
+      {!loading && !summary && <Explainer />}
 
       {summary && (
         <main className="results">
