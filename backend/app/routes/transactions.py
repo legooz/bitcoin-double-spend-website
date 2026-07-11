@@ -46,6 +46,14 @@ async def mempool_sample(request: Request) -> dict[str, str]:
     return {"txid": txid}
 
 
+@router.get("/mining/largest-pool")
+async def largest_mining_pool(request: Request) -> dict:
+    pool = await _source(request).largest_mining_pool()
+    if not pool:
+        raise HTTPException(status_code=404, detail="Mining pool data unavailable in this mode.")
+    return pool
+
+
 @router.get("/transaction/{txid}", response_model=TransactionSummary)
 async def get_transaction(
     txid: str,

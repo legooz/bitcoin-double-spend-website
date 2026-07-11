@@ -52,6 +52,9 @@ class RpcSource:
     async def sample_mempool_txid(self) -> str | None:
         return None
 
+    async def largest_mining_pool(self) -> dict | None:
+        return None
+
     async def get_transaction(self, txid: str, alpha: float) -> TransactionSummary | None:
         return await asyncio.to_thread(self._get_transaction_sync, txid, alpha)
 
