@@ -30,8 +30,7 @@ export interface RiskLevel {
   className: string;
 }
 
-export function riskLevel(probability: number, _confirmations: number, isCoinbase: boolean): RiskLevel {
-  if (isCoinbase) return { label: 'Coinbase (no double-spend risk)', className: 'value-warning' };
+export function riskLevel(probability: number, _confirmations: number, _isCoinbase: boolean): RiskLevel {
   if (probability < 0.01) return { label: 'Negligible risk', className: 'value-success' };
   if (probability < 0.1) return { label: 'Low risk', className: 'value-success' };
   if (probability < 0.5) return { label: 'Moderate risk', className: 'value-warning' };

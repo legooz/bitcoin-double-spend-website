@@ -28,19 +28,6 @@ export const exampleNormal = toPoints([
   [6000, 0.000087], [6300, 0.000114], [6600, 0.00004], [6900, 0.000052], [7200, 0.000018],
 ]);
 
-// Slow to confirm, spanning the first 5 hours. Modeled on the real block gaps
-// of block 16589 (June 2009), when the tiny early network mined blocks hours
-// apart: conf 1 at t=0, conf 2 after ~116 min, conf 3 after ~151 min, then
-// stuck at 3 for ~20 h. Each confirmation dips the risk, but the long waits at
-// a fixed confirmation count push it back up, so it climbs even at 3 confs.
-export const exampleSlow = toPoints([
-  [0, 0.0625], [900, 0.138799], [1800, 0.238524], [2700, 0.344406], [3600, 0.446556],
-  [4500, 0.539794], [5400, 0.621879], [6300, 0.692328], [7200, 0.510633], [8100, 0.580008],
-  [9000, 0.642933], [9900, 0.489487], [10800, 0.550611], [11700, 0.607717], [12600, 0.660197],
-  [13500, 0.707738], [14400, 0.750268], [15300, 0.787894], [16200, 0.820857], [17100, 0.849479],
-  [18000, 0.874136],
-]);
-
 // Fast confirmations (~1 block / 3 min): risk collapses almost immediately.
 export const exampleFast = toPoints([
   [0, 0.25], [300, 0.083852], [600, 0.00711], [900, 0.0006], [1200, 0.000203],

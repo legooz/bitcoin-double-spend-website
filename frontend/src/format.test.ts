@@ -26,8 +26,10 @@ describe('riskLevel', () => {
     expect(riskLevel(0.001, 0, false).className).toBe('value-success');
   });
 
-  it('labels coinbase transactions', () => {
-    expect(riskLevel(0, 0, true).label).toMatch(/coinbase/i);
+  it('scores coinbase transactions by their orphan-risk probability', () => {
+    // Coinbase txs are scored like any other now (orphan/reversal risk), not a special label.
+    expect(riskLevel(0, 0, true).className).toBe('value-success');
+    expect(riskLevel(0.8, 0, true).className).toBe('value-danger');
   });
 });
 
