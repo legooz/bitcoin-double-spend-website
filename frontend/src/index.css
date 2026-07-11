@@ -227,20 +227,20 @@ h1, h2, h3, h4 {
 
 .controls-bar {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.9rem;
+  border-color: rgba(232, 154, 61, 0.35);
+  background: linear-gradient(135deg, rgba(232, 154, 61, 0.07), var(--card-b));
+  box-shadow: 0 0 24px rgba(232, 154, 61, 0.06);
 }
 
 .controls-bar .alpha-block {
-  flex: 1;
-  min-width: 220px;
   margin: 0;
   padding: 0;
   border: none;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .controls-bar label {
@@ -392,7 +392,7 @@ h1, h2, h3, h4 {
 }
 
 .alpha-slider {
-  flex: 1;
+  width: 100%;
   accent-color: var(--accent);
 }
 
@@ -454,17 +454,18 @@ h1, h2, h3, h4 {
 
 .copy-btn {
   flex-shrink: 0;
-  background: var(--input-bg);
-  color: var(--text);
-  border: 1px solid var(--border-soft);
-  border-radius: 8px;
-  padding: 0.3rem 0.65rem;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 0.32rem 0.8rem;
   font-size: 0.72rem;
   font-weight: 600;
+  transition: background 0.15s ease;
 }
 
 .copy-btn:hover {
-  border-color: var(--accent);
+  background: rgba(232, 154, 61, 0.12);
 }
 
 .txid-actions {
@@ -490,17 +491,34 @@ h1, h2, h3, h4 {
 }
 
 .preset-btn {
-  background: var(--input-bg);
-  color: var(--text);
-  border: 1px solid var(--border-soft);
-  border-radius: 8px;
-  padding: 0.45rem 0.7rem;
-  font-size: 0.75rem;
+  background: rgba(232, 154, 61, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(232, 154, 61, 0.45);
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .preset-btn:hover {
-  border-color: var(--accent);
+  background: var(--accent);
+  color: #0d111b;
+}
+
+.presets-label {
+  color: var(--muted-2);
+  font-size: 0.8rem;
+  margin-right: 0.15rem;
+}
+
+.explainer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.explainer a:hover {
+  text-decoration: underline;
 }
 
 .io-grid {
