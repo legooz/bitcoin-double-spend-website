@@ -206,14 +206,14 @@ export default function App() {
                       <div className="graph-card-title">First 5 Hours</div>
                       <div className="graph-card-subtitle">Modeled probability during the first five hours.</div>
                       <div className="graph-surface">
-                        <ProbabilityChart points={history.first_5h.points} color="#3b82f6" />
+                        <ProbabilityChart points={history.first_5h.points} color="#3b82f6" height={320} />
                       </div>
                     </div>
                     <div className="graph-card">
                       <div className="graph-card-title">Full History</div>
                       <div className="graph-card-subtitle">Modeled decay across the transaction's life.</div>
                       <div className="graph-surface">
-                        <ProbabilityChart points={history.full_graph.points} color="#22c55e" />
+                        <ProbabilityChart points={history.full_graph.points} color="#22c55e" height={320} />
                       </div>
                     </div>
                   </>
@@ -231,6 +231,17 @@ export default function App() {
       )}
 
       <footer className="footer">
+        <p className="footer-refs">
+          Based on{' '}
+          <a href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener noreferrer">
+            Nakamoto (2008)
+          </a>{' '}
+          and{' '}
+          <a href="https://eprint.iacr.org/2018/040" target="_blank" rel="noopener noreferrer">
+            Neumayer, Varia &amp; Eyal (2018)
+          </a>
+          .
+        </p>
         <p>
           Portfolio demo. The probability model is real; in demo mode sample transactions are simulated so
           the app runs without a Bitcoin node. Set the API's <code>DSCAP_DATA_SOURCE</code> to{' '}
