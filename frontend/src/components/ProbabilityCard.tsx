@@ -22,14 +22,14 @@ export function ProbabilityCard({ probability, confirmations, elapsed, isCoinbas
   return (
     <div className="card probability-card">
       <div className="prob-main">
-        <div className="data-label">DOUBLE-SPEND PROBABILITY</div>
-        <div className="probability-text">{isCoinbase ? 'N/A' : formatProbability(probability)}</div>
+        <div className="data-label">{isCoinbase ? 'BLOCK-ORPHAN PROBABILITY' : 'DOUBLE-SPEND PROBABILITY'}</div>
+        <div className="probability-text">{formatProbability(probability)}</div>
         <div className={`risk-text ${risk.className}`}>{risk.label}</div>
-        {!isCoinbase && (
-          <p className="assumption-note">
-            Theoretical estimate that assumes an attacker controls α of the network's hash power.
-          </p>
-        )}
+        <p className="assumption-note">
+          {isCoinbase
+            ? "The chance the block is orphaned and its reward reversed, assuming an attacker controls α of the network's hash power."
+            : "Theoretical estimate that assumes an attacker controls α of the network's hash power."}
+        </p>
       </div>
 
       <div className="prob-stats">

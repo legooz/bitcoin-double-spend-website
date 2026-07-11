@@ -16,6 +16,7 @@ Confirmation updates are polled instead of using ZMQ, matching the node source.
 from __future__ import annotations
 
 import asyncio
+import bisect
 import time
 from typing import AsyncIterator
 
@@ -38,6 +39,10 @@ from app.probability.lttb import choose_threshold, downsample
 _SATS_PER_BTC = 100_000_000
 _AVG_BLOCK_SECONDS = 600
 _HISTORY_MAX_CONFIRMATIONS = 100
+# How many post-inclusion block timestamps to pull when building the real
+# confirmation timeline. 48 blocks (~4 API calls) covers the first 5 hours at
+# any realistic pace, and enough of the tail for risk to reach zero.
+_HISTORY_MAX_BLOCKS = 48
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
 _POOL_TTL_SECONDS = 6 * 3600  # mining-pool shares drift slowly; cache for hours
 _FIRST_5H_STEP_SECONDS = 5  # fine resolution through the decay region
@@ -175,8 +180,11 @@ class EsploraSource:
             blocktime = await self._first_seen(txid)
             time_seen = blocktime
 
+        # Coinbase transactions are included too: their "double-spend" risk is the
+        # chance the block is orphaned and the reward reversed, which the same
+        # equation captures (it is why coinbase outputs are locked for 100 blocks).
         probability = 0.0
-        if not is_coinbase and blocktime > 0:
+        if blocktime > 0:
             elapsed = max(0.0, time.time() - blocktime)
             probability = double_spend_probability(elapsed, confirmations, alpha)
 
@@ -195,7 +203,7 @@ class EsploraSource:
 
     async def stream_probability(self, txid: str, alpha: float) -> AsyncIterator[ProbabilityUpdate]:
         summary = await self.get_transaction(txid, alpha)
-        if summary is None or summary.is_coinbase or summary.blocktime <= 0:
+        if summary is None or summary.blocktime <= 0:
             return
 
         blocktime = summary.blocktime
@@ -228,34 +236,86 @@ class EsploraSource:
                         blocktime = refreshed.blocktime
             await asyncio.sleep(0.5)
 
+    async def _block_times(self, start_height: int, count: int) -> list[int]:
+        """Ascending timestamps for blocks start_height .. start_height+count-1.
+
+        Uses /v1/mining or, here, /v1/blocks/:height, which returns 15 blocks
+        ending at :height — so a handful of calls covers the first few hours.
+        Stops at whatever contiguous run starts at start_height.
+        """
+        by_height: dict[int, int] = {}
+        end = start_height + count - 1
+        h = end
+        while h >= start_height:
+            page = await self._get_json(f"/v1/blocks/{h}")
+            if not page:
+                break
+            for block in page:
+                height = block.get("height")
+                if height is not None and start_height <= height <= end:
+                    by_height[height] = int(block.get("timestamp", 0))
+            lowest = min(block.get("height", h) for block in page)
+            h = lowest - 1
+        times: list[int] = []
+        height = start_height
+        while height in by_height:
+            times.append(by_height[height])
+            height += 1
+        return times
+
     async def get_history(
         self, txid: str, alpha: float, lttb_threshold: int | None
     ) -> HistoryResponse | None:
-        summary = await self.get_transaction(txid, alpha)
-        if summary is None or summary.is_coinbase or summary.blockhash == "":
+        tx = await self._get_json(f"/tx/{txid}")
+        if tx is None:
+            return None
+        status = tx.get("status", {})
+        if not status.get("confirmed"):
             return None  # unconfirmed transactions have no history curve yet
+        block_height = status.get("block_height")
+        block_time = status.get("block_time")
+        if block_height is None or not block_time:
+            return None
 
-        # Model the per-confirmation decay from the real inclusion time instead of
-        # fetching thousands of block timestamps (which would hit rate limits).
-        max_confirmations = min(max(1, summary.confirmations), _HISTORY_MAX_CONFIRMATIONS)
+        # Build the curve from the transaction's REAL confirmation timeline: the
+        # timestamp of the block it landed in plus the blocks that followed. A
+        # slowly-confirmed transaction (blocks hours apart) then genuinely shows
+        # risk staying elevated, instead of the old uniform 10-minute model.
+        tip = await self._tip_height()
+        count = max(1, min(_HISTORY_MAX_BLOCKS, tip - block_height + 1))
+        raw_times = await self._block_times(block_height, count)
+        if not raw_times:
+            return None
+        # Bitcoin block timestamps can dip slightly (the 2-hour rule); force a
+        # non-decreasing sequence so the confirmation count is well defined.
+        block_times: list[int] = []
+        running = raw_times[0]
+        for stamp in raw_times:
+            running = max(running, stamp)
+            block_times.append(running)
+        t0 = block_times[0]
 
-        # Full graph: one point per confirmation, stopping once risk is negligible.
+        def confs_at(elapsed_seconds: int) -> int:
+            # Number of blocks mined by t0 + elapsed (at least the inclusion block).
+            return max(1, bisect.bisect_right(block_times, t0 + elapsed_seconds))
+
+        # Full graph: one point per confirmation at its real elapsed time.
         full_rows: list[tuple[float, float]] = []
-        for confirmations in range(1, max_confirmations + 1):
-            elapsed = (confirmations - 1) * _AVG_BLOCK_SECONDS
-            probability = double_spend_probability(elapsed, confirmations, alpha)
-            full_rows.append((float(elapsed), float(probability)))
-            if probability <= _NEGLIGIBLE_PROBABILITY:
+        for k in range(1, len(block_times) + 1):
+            elapsed = float(block_times[k - 1] - t0)
+            probability = double_spend_probability(elapsed, k, alpha)
+            full_rows.append((elapsed, float(probability)))
+            if probability <= _NEGLIGIBLE_PROBABILITY and k >= 2:
                 break
 
-        # First 5 hours: fine resolution through the decay, then stop once the risk
-        # has stayed negligible for a full block (the flat tail carries no info).
-        limit = min(_FIVE_HOURS_SECONDS, (max_confirmations - 1) * _AVG_BLOCK_SECONDS)
+        # First 5 hours: fine resolution with the REAL confirmation count at each
+        # step. Never run past the last block we fetched (no guessing the future).
+        limit = min(_FIVE_HOURS_SECONDS, int(block_times[-1] - t0))
         first_5h_rows: list[tuple[float, float]] = []
         negligible_since: int | None = None
         for second in range(0, limit + 1, _FIRST_5H_STEP_SECONDS):
-            confirmations = min(1 + second // _AVG_BLOCK_SECONDS, max_confirmations)
-            probability = double_spend_probability(second, confirmations, alpha)
+            confirmations = confs_at(second)
+            probability = double_spend_probability(float(second), confirmations, alpha)
             first_5h_rows.append((float(second), float(probability)))
             if probability <= _NEGLIGIBLE_PROBABILITY:
                 if negligible_since is None:
@@ -267,8 +327,8 @@ class EsploraSource:
 
         return HistoryResponse(
             txid=txid,
-            included_block_height=0,
-            included_block_time=summary.blocktime,
+            included_block_height=block_height,
+            included_block_time=block_time,
             alpha=alpha,
             full_graph=_to_view(full_rows, lttb_threshold),
             first_5h=_to_view(first_5h_rows, lttb_threshold),

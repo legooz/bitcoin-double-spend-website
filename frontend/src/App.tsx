@@ -18,7 +18,7 @@ import { ProbabilityChart } from './components/ProbabilityChart';
 import { SearchBar } from './components/SearchBar';
 import { SummaryPanel } from './components/SummaryPanel';
 import { TransactionHeader } from './components/TransactionHeader';
-import { FAMOUS_TRANSACTIONS } from './famousTransactions';
+import { FAMOUS_TRANSACTIONS, SCENARIO_TRANSACTIONS } from './famousTransactions';
 import { useProbabilityStream } from './hooks/useProbabilityStream';
 import type { HistoryResponse, SampleTransaction, TransactionSummary } from './types';
 
@@ -40,7 +40,7 @@ export default function App() {
   const [retryKey, setRetryKey] = useState(0);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  const canStream = summary != null && !summary.is_coinbase;
+  const canStream = summary != null;
   const { latest, points, status } = useProbabilityStream(activeTxid, committedAlpha, canStream);
 
   // Confirmation count the history graphs were last built for. Lets us refresh
@@ -144,13 +144,13 @@ export default function App() {
       // Reflect the loaded transaction in the URL so it's shareable / refresh-safe.
       const params = new URLSearchParams({ txid, alpha: alpha.toFixed(2) });
       window.history.replaceState(null, '', `?${params.toString()}`);
-      if (!result.is_coinbase) {
-        setHistoryLoading(true);
-        fetchHistory(txid, alpha)
-          .then(setHistory)
-          .catch(() => setHistory(null))
-          .finally(() => setHistoryLoading(false));
-      }
+      // History is available for any confirmed transaction, coinbase included
+      // (unconfirmed ones 404 and resolve to null).
+      setHistoryLoading(true);
+      fetchHistory(txid, alpha)
+        .then(setHistory)
+        .catch(() => setHistory(null))
+        .finally(() => setHistoryLoading(false));
     } catch (err) {
       setActiveTxid(null);
       setError(
@@ -284,7 +284,7 @@ export default function App() {
       {(dataSource === 'esplora' || !backendReady) && (
         <div className="controls-extra">
           <span className="samples-label">Try one:</span>
-          {FAMOUS_TRANSACTIONS.map((tx) => (
+          {[...SCENARIO_TRANSACTIONS, ...FAMOUS_TRANSACTIONS].map((tx) => (
             <button key={tx.txid} className="sample-chip" onClick={() => handleSearch(tx.txid)}>
               {tx.label}
             </button>
@@ -344,69 +344,70 @@ export default function App() {
             status={status}
           />
 
-          {summary.is_coinbase ? (
+          {summary.is_coinbase && (
             <p className="notice">
-              Coinbase (block-reward) transaction: it has no inputs to double-spend, so no risk is computed.
+              Coinbase (block-reward) transaction: with no inputs to double-spend, the risk shown is the
+              chance the block is orphaned and the reward reversed — the same measure, and why coinbase
+              rewards are locked for 100 blocks.
             </p>
-          ) : (
-            <section className="graphs-section">
-              <h2 className="graphs-title">Probability Graphs</h2>
-              <p className="graphs-subtitle">
-                α {committedAlpha.toFixed(2)} · {history ? 'modeled decay + live stream' : 'live stream'}
-              </p>
-              <div className="graph-grid">
-                <div className="graph-card graph-card-wide">
-                  <div className="graph-card-title">Live Probability</div>
-                  <div className="graph-card-subtitle">Incoming websocket updates over elapsed time.</div>
-                  <div className="graph-surface">
-                    <div className={isSettled ? 'graph-dim' : undefined}>
-                      <ProbabilityChart points={points} color="#e89a3d" height={320} emptyMessage={liveEmptyMessage} />
+          )}
+          <section className="graphs-section">
+            <h2 className="graphs-title">Probability Graphs</h2>
+            <p className="graphs-subtitle">
+              α {committedAlpha.toFixed(2)} · {history ? 'real block-time decay + live stream' : 'live stream'}
+            </p>
+            <div className="graph-grid">
+              <div className="graph-card graph-card-wide">
+                <div className="graph-card-title">Live Probability</div>
+                <div className="graph-card-subtitle">Incoming websocket updates over elapsed time.</div>
+                <div className="graph-surface">
+                  <div className={isSettled ? 'graph-dim' : undefined}>
+                    <ProbabilityChart points={points} color="#e89a3d" height={320} emptyMessage={liveEmptyMessage} />
+                  </div>
+                  {isSettled && (
+                    <div className="graph-overlay">
+                      Fully confirmed. Double-spend risk is effectively zero.
                     </div>
-                    {isSettled && (
-                      <div className="graph-overlay">
-                        Fully confirmed. Double-spend risk is effectively zero.
-                      </div>
-                    )}
+                  )}
+                </div>
+              </div>
+              {historyLoading && (
+                <div className="graph-card">
+                  <div className="graph-card-title">Confirmation history</div>
+                  <div className="graph-surface">
+                    <div className="graph-empty">
+                      Computing history… this can take a few seconds for older transactions.
+                    </div>
                   </div>
                 </div>
-                {historyLoading && (
+              )}
+              {!historyLoading && !history && (
+                <div className="graph-card">
+                  <div className="graph-card-subtitle" style={{ margin: 0 }}>
+                    Historical graphs appear once the transaction is confirmed.
+                  </div>
+                </div>
+              )}
+              {history && (
+                <>
                   <div className="graph-card">
-                    <div className="graph-card-title">Modeled decay</div>
+                    <div className="graph-card-title">First 5 Hours</div>
+                    <div className="graph-card-subtitle">Probability during the first five hours, from real block times.</div>
                     <div className="graph-surface">
-                      <div className="graph-empty">
-                        Computing history… this can take a few seconds for older transactions.
-                      </div>
+                      <ProbabilityChart points={history.first_5h.points} color="#3b82f6" height={320} />
                     </div>
                   </div>
-                )}
-                {!historyLoading && !history && (
                   <div className="graph-card">
-                    <div className="graph-card-subtitle" style={{ margin: 0 }}>
-                      Historical graphs appear once the transaction is confirmed.
+                    <div className="graph-card-title">Full History</div>
+                    <div className="graph-card-subtitle">Decay across the transaction's life, from real block times.</div>
+                    <div className="graph-surface">
+                      <ProbabilityChart points={history.full_graph.points} color="#22c55e" height={320} />
                     </div>
                   </div>
-                )}
-                {history && (
-                  <>
-                    <div className="graph-card">
-                      <div className="graph-card-title">First 5 Hours</div>
-                      <div className="graph-card-subtitle">Modeled probability during the first five hours.</div>
-                      <div className="graph-surface">
-                        <ProbabilityChart points={history.first_5h.points} color="#3b82f6" height={320} />
-                      </div>
-                    </div>
-                    <div className="graph-card">
-                      <div className="graph-card-title">Full History</div>
-                      <div className="graph-card-subtitle">Modeled decay across the transaction's life.</div>
-                      <div className="graph-surface">
-                        <ProbabilityChart points={history.full_graph.points} color="#22c55e" height={320} />
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </section>
-          )}
+                </>
+              )}
+            </div>
+          </section>
 
           <SummaryPanel
             tx={summary}
