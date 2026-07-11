@@ -1,4 +1,4 @@
-import { EXAMPLE_ALPHA, exampleFast, exampleMempool, exampleNormal } from '../exampleGraphs';
+import { EXAMPLE_ALPHA, exampleFast, exampleMempool, exampleNormal, exampleSlow } from '../exampleGraphs';
 import { Equation } from './Equation';
 import { ProbabilityChart } from './ProbabilityChart';
 
@@ -93,6 +93,13 @@ export function Explainer() {
           <div className="graph-card-subtitle">0 confirmations, so the risk climbs with time.</div>
           <div className="graph-surface">
             <ProbabilityChart points={exampleMempool} color="#ef4444" height={190} showTooltip={false} />
+          </div>
+        </div>
+        <div className="example-graph">
+          <div className="graph-card-title">Slow to confirm</div>
+          <div className="graph-card-subtitle">Only 2-3 blocks in the first 5 hours; the risk stays high.</div>
+          <div className="graph-surface">
+            <ProbabilityChart points={exampleSlow} color="#f97316" height={190} showTooltip={false} />
           </div>
         </div>
         <div className="example-graph">
