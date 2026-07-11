@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   ApiError,
@@ -41,12 +41,34 @@ export default function App() {
   const canStream = summary != null && !summary.is_coinbase;
   const { latest, points, status } = useProbabilityStream(activeTxid, committedAlpha, canStream);
 
+  // The largest-pool chip depends on a slow upstream (mempool.space) and the
+  // free backend may still be warming, so a single failure must not drop the
+  // chip for the whole session. Retry with backoff; a ref guards against
+  // concurrent runs when both the init loop and the summary effect trigger it.
+  const poolInFlight = useRef(false);
+  const loadLargestPool = useCallback(async () => {
+    if (poolInFlight.current) return;
+    poolInFlight.current = true;
+    try {
+      for (let attempt = 0; attempt < 6; attempt++) {
+        try {
+          setLargestPool(await fetchLargestPool());
+          return;
+        } catch {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+      }
+    } finally {
+      poolInFlight.current = false;
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     const init = async () => {
       // The free backend (Render) sleeps and can take ~30-50s to wake. Retry the
       // initial fetches so the UI fills in once it's up, without a manual reload.
-      for (let attempt = 0; attempt < 20 && !cancelled; attempt++) {
+      for (let attempt = 0; attempt < 40 && !cancelled; attempt++) {
         try {
           const health = await fetchHealth();
           if (cancelled) return;
@@ -54,7 +76,7 @@ export default function App() {
           setBackendReady(true);
           setBackendWaking(false);
           fetchSamples().then(setSamples).catch(() => undefined);
-          fetchLargestPool().then(setLargestPool).catch(() => setLargestPool(null));
+          loadLargestPool();
           return;
         } catch {
           if (!cancelled) setBackendWaking(true);
@@ -66,7 +88,14 @@ export default function App() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // If the pool chip never loaded (slow/cold upstream), try again once a
+  // transaction is on screen, so the recommendation is present when it's needed.
+  useEffect(() => {
+    if (summary && !largestPool) loadLargestPool();
+  }, [summary, largestPool, loadLargestPool]);
 
   const load = useCallback(async (txid: string, alpha: number) => {
     setLoading(true);
@@ -174,6 +203,9 @@ export default function App() {
         : status === 'closed'
           ? 'No further live updates (the transaction may already be confirmed).'
           : 'Waiting for the first update…';
+  // A confirmed transaction whose risk has already decayed to ~0 has nothing
+  // live to show; dim the live graph and say so.
+  const isSettled = summary != null && summary.blockhash !== '' && liveProbability < 1e-4;
 
   return (
     <div className="app">
@@ -237,7 +269,12 @@ export default function App() {
       )}
 
       {backendWaking && !backendReady && (
-        <p className="notice notice-connecting">Connecting to the analyzer…</p>
+        <div className="notice notice-connecting" role="status">
+          <span className="spinner" aria-hidden="true" />
+          <span>
+            Waking the analyzer. The free server sleeps when idle, so the first load can take up to a minute.
+          </span>
+        </div>
       )}
       {loading && <p className="notice">Loading…</p>}
       {error && <p className="notice error">{error}</p>}
@@ -279,7 +316,14 @@ export default function App() {
                   <div className="graph-card-title">Live Probability</div>
                   <div className="graph-card-subtitle">Incoming websocket updates over elapsed time.</div>
                   <div className="graph-surface">
-                    <ProbabilityChart points={points} color="#e89a3d" height={320} emptyMessage={liveEmptyMessage} />
+                    <div className={isSettled ? 'graph-dim' : undefined}>
+                      <ProbabilityChart points={points} color="#e89a3d" height={320} emptyMessage={liveEmptyMessage} />
+                    </div>
+                    {isSettled && (
+                      <div className="graph-overlay">
+                        Fully confirmed. Double-spend risk is effectively zero.
+                      </div>
+                    )}
                   </div>
                 </div>
                 {historyLoading && (

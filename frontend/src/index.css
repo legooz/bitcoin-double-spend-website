@@ -208,16 +208,32 @@ h1, h2, h3, h4 {
 }
 
 .notice-connecting {
-  animation: notice-pulse 1.4s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--muted);
 }
 
-@keyframes notice-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
+.spinner {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(147, 162, 196, 0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spinner-rotate 0.8s linear infinite;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
   }
-  50% {
-    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
   }
 }
 
@@ -645,6 +661,24 @@ h1, h2, h3, h4 {
   border-radius: 14px;
   padding: 0.6rem;
   overflow: hidden;
+  position: relative;
+}
+
+.graph-dim {
+  opacity: 0.18;
+}
+
+.graph-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .graph-empty {

@@ -40,7 +40,8 @@ _AVG_BLOCK_SECONDS = 600
 _HISTORY_MAX_CONFIRMATIONS = 100
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
 _POOL_TTL_SECONDS = 6 * 3600  # mining-pool shares drift slowly; cache for hours
-_FIRST_5H_STEP_SECONDS = 20  # sample the 5h curve coarsely (LTTB smooths it) to stay fast
+_FIRST_5H_STEP_SECONDS = 5  # fine resolution through the decay region
+_NEGLIGIBLE_PROBABILITY = 1e-6  # stop adding points once risk is this close to zero
 
 
 class EsploraSource:
@@ -238,18 +239,31 @@ class EsploraSource:
         # fetching thousands of block timestamps (which would hit rate limits).
         max_confirmations = min(max(1, summary.confirmations), _HISTORY_MAX_CONFIRMATIONS)
 
+        # Full graph: one point per confirmation, stopping once risk is negligible.
         full_rows: list[tuple[float, float]] = []
         for confirmations in range(1, max_confirmations + 1):
             elapsed = (confirmations - 1) * _AVG_BLOCK_SECONDS
             probability = double_spend_probability(elapsed, confirmations, alpha)
             full_rows.append((float(elapsed), float(probability)))
+            if probability <= _NEGLIGIBLE_PROBABILITY:
+                break
 
-        limit = min(_FIVE_HOURS_SECONDS, int(full_rows[-1][0]))
+        # First 5 hours: fine resolution through the decay, then stop once the risk
+        # has stayed negligible for a full block (the flat tail carries no info).
+        limit = min(_FIVE_HOURS_SECONDS, (max_confirmations - 1) * _AVG_BLOCK_SECONDS)
         first_5h_rows: list[tuple[float, float]] = []
+        negligible_since: int | None = None
         for second in range(0, limit + 1, _FIRST_5H_STEP_SECONDS):
             confirmations = min(1 + second // _AVG_BLOCK_SECONDS, max_confirmations)
             probability = double_spend_probability(second, confirmations, alpha)
             first_5h_rows.append((float(second), float(probability)))
+            if probability <= _NEGLIGIBLE_PROBABILITY:
+                if negligible_since is None:
+                    negligible_since = second
+                elif second - negligible_since >= _AVG_BLOCK_SECONDS:
+                    break
+            else:
+                negligible_since = None
 
         return HistoryResponse(
             txid=txid,
