@@ -36,10 +36,17 @@ export default function App() {
   const [largestPool, setLargestPool] = useState<LargestPool | null>(null);
   const [backendReady, setBackendReady] = useState(false);
   const [backendWaking, setBackendWaking] = useState(false);
+  const [connectFailed, setConnectFailed] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const [historyLoading, setHistoryLoading] = useState(false);
 
   const canStream = summary != null && !summary.is_coinbase;
   const { latest, points, status } = useProbabilityStream(activeTxid, committedAlpha, canStream);
+
+  // Confirmation count the history graphs were last built for. Lets us refresh
+  // the history in place when a new block arrives, without resetting the live
+  // WebSocket. Reset in load() whenever a fresh transaction is opened.
+  const lastHistoryConfs = useRef<number>(-1);
 
   // The largest-pool chip depends on a slow upstream (mempool.space) and the
   // free backend may still be warming, so a single failure must not drop the
@@ -68,6 +75,7 @@ export default function App() {
     const init = async () => {
       // The free backend (Render) sleeps and can take ~30-50s to wake. Retry the
       // initial fetches so the UI fills in once it's up, without a manual reload.
+      setConnectFailed(false);
       for (let attempt = 0; attempt < 40 && !cancelled; attempt++) {
         try {
           const health = await fetchHealth();
@@ -83,13 +91,19 @@ export default function App() {
           await new Promise((resolve) => setTimeout(resolve, 4000));
         }
       }
+      // Budget exhausted without a response: stop the spinner and offer a retry
+      // instead of spinning forever.
+      if (!cancelled) {
+        setBackendWaking(false);
+        setConnectFailed(true);
+      }
     };
     init();
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [retryKey]);
 
   // If the pool chip never loaded (slow/cold upstream), try again once a
   // transaction is on screen, so the recommendation is present when it's needed.
@@ -97,11 +111,32 @@ export default function App() {
     if (summary && !largestPool) loadLargestPool();
   }, [summary, largestPool, loadLargestPool]);
 
+  // When the live stream reports a new confirmation (a block arrived), refresh
+  // the history graphs in place and keep the summary's confirmation count
+  // current. This deliberately does NOT touch the WebSocket, so the live graph
+  // keeps its accumulated points instead of restarting.
+  useEffect(() => {
+    const confs = latest?.confirmations;
+    if (confs == null || activeTxid == null) return;
+    if (confs === lastHistoryConfs.current) return;
+    const isFirstTick = lastHistoryConfs.current === -1;
+    lastHistoryConfs.current = confs;
+    setSummary((prev) => (prev && prev.confirmations !== confs ? { ...prev, confirmations: confs } : prev));
+    // The first tick just echoes the loaded summary; load() already fetched history.
+    if (isFirstTick) return;
+    setHistoryLoading(true);
+    fetchHistory(activeTxid, committedAlpha)
+      .then(setHistory)
+      .catch(() => undefined)
+      .finally(() => setHistoryLoading(false));
+  }, [latest?.confirmations, activeTxid, committedAlpha]);
+
   const load = useCallback(async (txid: string, alpha: number) => {
     setLoading(true);
     setError(null);
     setHistory(null);
     setSummary(null);
+    lastHistoryConfs.current = -1;
     try {
       const result = await fetchTransaction(txid, alpha);
       setSummary(result);
@@ -275,6 +310,14 @@ export default function App() {
             Waking the analyzer. The free server sleeps when idle, so the first load can take up to a minute.
           </span>
         </div>
+      )}
+      {connectFailed && !backendReady && (
+        <p className="notice error">
+          Couldn't reach the analyzer after retrying.{' '}
+          <button className="preset-btn" onClick={() => setRetryKey((key) => key + 1)}>
+            Retry
+          </button>
+        </p>
       )}
       {loading && <p className="notice">Loading…</p>}
       {error && <p className="notice error">{error}</p>}
