@@ -534,7 +534,7 @@ h1, h2, h3, h4 {
 
 .graph-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -674,6 +674,21 @@ h1, h2, h3, h4 {
   background: rgba(10, 17, 40, 0.8);
   padding: 0.1rem 0.35rem;
   border-radius: 5px;
+}
+
+.footer a,
+.refs a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer a:hover,
+.refs a:hover {
+  text-decoration: underline;
+}
+
+.footer-refs {
+  margin-bottom: 0.4rem;
 }
 
 @media (max-width: 1000px) {

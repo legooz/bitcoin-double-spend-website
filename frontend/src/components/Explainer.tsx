@@ -107,10 +107,17 @@ export function Explainer() {
 
       <h3>References</h3>
       <p className="refs">
-        S. Nakamoto, “Bitcoin: A Peer-to-Peer Electronic Cash System,” 2008.
+        S. Nakamoto,{' '}
+        <a href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener noreferrer">
+          “Bitcoin: A Peer-to-Peer Electronic Cash System,”
+        </a>{' '}
+        2008.
         <br />
-        S. Neumayer, M. Varia, and I. Eyal, “An analysis of acceptance policies for blockchain
-        transactions,” IACR Cryptology ePrint Archive, Rep. 2018/040, 2018.
+        S. Neumayer, M. Varia, and I. Eyal,{' '}
+        <a href="https://eprint.iacr.org/2018/040" target="_blank" rel="noopener noreferrer">
+          “An analysis of acceptance policies for blockchain transactions,”
+        </a>{' '}
+        IACR Cryptology ePrint Archive, Rep. 2018/040, 2018.
       </p>
     </section>
   );
