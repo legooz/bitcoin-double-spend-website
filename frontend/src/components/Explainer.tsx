@@ -38,12 +38,18 @@ export function Explainer() {
         <em> and </em> the time since they were broadcast, not by blocks alone.
       </p>
       <p>
-        Satoshi Nakamoto's paper explains that Bitcoin secures transactions by placing them in a chain
-        of timestamped blocks, where each additional block makes earlier transactions harder to change.
-        Sebastian Neumayer's analysis adds that a transaction's security should not be judged by
-        confirmations alone, but also by how much time has passed since it was broadcast. In short:
-        Nakamoto describes the blockchain structure, and Neumayer explains why time and confirmations
-        together give a truer picture of double-spend risk.
+        <a href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener noreferrer">
+          Satoshi Nakamoto's paper
+        </a>{' '}
+        explains that Bitcoin secures transactions by placing them in a chain of timestamped blocks,
+        where each additional block makes earlier transactions harder to change.{' '}
+        <a href="https://eprint.iacr.org/2018/040" target="_blank" rel="noopener noreferrer">
+          Sebastian Neumayer's analysis
+        </a>{' '}
+        adds that a transaction's security should not be judged by confirmations alone, but also by how
+        much time has passed since it was broadcast. In short: Nakamoto describes the blockchain
+        structure, and Neumayer explains why time and confirmations together give a truer picture of
+        double-spend risk.
       </p>
 
       <h2>The double-spend probability model</h2>

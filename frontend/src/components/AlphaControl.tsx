@@ -29,6 +29,7 @@ export function AlphaControl({ pendingAlpha, onChange, onCommit, onApply, larges
       </div>
 
       <div className="alpha-presets">
+        <span className="presets-label">Recommended α:</span>
         {largestPool && (
           <button
             className="preset-btn"
