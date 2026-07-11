@@ -32,7 +32,7 @@ from app.models import (
     TransactionOutput,
     TransactionSummary,
 )
-from app.probability.equations import double_spend_probability, p_double_spend_if_accepted_now
+from app.probability.equations import double_spend_probability
 from app.probability.lttb import choose_threshold, downsample
 
 _SATS_PER_BTC = 100_000_000
@@ -40,6 +40,7 @@ _AVG_BLOCK_SECONDS = 600
 _HISTORY_MAX_CONFIRMATIONS = 100
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
 _POOL_TTL_SECONDS = 6 * 3600  # mining-pool shares drift slowly; cache for hours
+_FIRST_5H_STEP_SECONDS = 20  # sample the 5h curve coarsely (LTTB smooths it) to stay fast
 
 
 class EsploraSource:
@@ -114,7 +115,8 @@ class EsploraSource:
             self._pool_cache = (result, now)
             return result
         except Exception:  # noqa: BLE001
-            return self._pool_cache[0] if self._pool_cache else None
+            # Never hide the preset; fall back to a representative value.
+            return self._pool_cache[0] if self._pool_cache else {"name": "the largest pool", "share": 0.25}
 
     async def sample_confirmed_txid(self) -> str | None:
         # First non-coinbase transaction in the tip block (recently confirmed).
@@ -244,9 +246,9 @@ class EsploraSource:
 
         limit = min(_FIVE_HOURS_SECONDS, int(full_rows[-1][0]))
         first_5h_rows: list[tuple[float, float]] = []
-        for second in range(limit + 1):
+        for second in range(0, limit + 1, _FIRST_5H_STEP_SECONDS):
             confirmations = min(1 + second // _AVG_BLOCK_SECONDS, max_confirmations)
-            probability = p_double_spend_if_accepted_now(second, confirmations, alpha)
+            probability = double_spend_probability(second, confirmations, alpha)
             first_5h_rows.append((float(second), float(probability)))
 
         return HistoryResponse(
