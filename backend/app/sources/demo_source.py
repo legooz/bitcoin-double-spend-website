@@ -33,6 +33,7 @@ _FIXTURE_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "demo_transac
 _AVG_BLOCK_SECONDS = 600
 _HISTORY_CONFIRMATIONS = 40
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
+_FIRST_5H_STEP_SECONDS = 20  # sample the 5h curve coarsely (LTTB smooths it) to stay fast
 
 
 class DemoSource:
@@ -128,7 +129,7 @@ class DemoSource:
         # Dense per-second curve for the first 5 hours.
         first_5h_limit = min(_FIVE_HOURS_SECONDS, int(full_rows[-1][0]))
         first_5h_rows: list[tuple[float, float]] = []
-        for second in range(first_5h_limit + 1):
+        for second in range(0, first_5h_limit + 1, _FIRST_5H_STEP_SECONDS):
             confirmations = min(1 + second // _AVG_BLOCK_SECONDS, _HISTORY_CONFIRMATIONS)
             probability = p_double_spend_if_accepted_now(second, confirmations, alpha)
             first_5h_rows.append((float(second), float(probability)))

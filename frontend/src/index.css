@@ -207,6 +207,20 @@ h1, h2, h3, h4 {
   color: #fca5a5;
 }
 
+.notice-connecting {
+  animation: notice-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes notice-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .notice {
   max-width: 900px;
   margin: 1.25rem auto 0;

@@ -36,6 +36,7 @@ export default function App() {
   const [largestPool, setLargestPool] = useState<LargestPool | null>(null);
   const [backendReady, setBackendReady] = useState(false);
   const [backendWaking, setBackendWaking] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const canStream = summary != null && !summary.is_coinbase;
   const { latest, points, status } = useProbabilityStream(activeTxid, committedAlpha, canStream);
@@ -80,9 +81,11 @@ export default function App() {
       const params = new URLSearchParams({ txid, alpha: alpha.toFixed(2) });
       window.history.replaceState(null, '', `?${params.toString()}`);
       if (!result.is_coinbase) {
+        setHistoryLoading(true);
         fetchHistory(txid, alpha)
           .then(setHistory)
-          .catch(() => setHistory(null));
+          .catch(() => setHistory(null))
+          .finally(() => setHistoryLoading(false));
       }
     } catch (err) {
       setActiveTxid(null);
@@ -163,6 +166,14 @@ export default function App() {
   const liveProbability = latest?.probability ?? summary?.probability ?? 0;
   const liveConfirmations = latest?.confirmations ?? summary?.confirmations ?? 0;
   const liveElapsed = latest?.elapsed_time ?? 0;
+  const liveEmptyMessage =
+    status === 'connecting'
+      ? 'Connecting to the live stream…'
+      : status === 'error'
+        ? 'Live connection unavailable.'
+        : status === 'closed'
+          ? 'No further live updates (the transaction may already be confirmed).'
+          : 'Waiting for the first update…';
 
   return (
     <div className="app">
@@ -226,9 +237,7 @@ export default function App() {
       )}
 
       {backendWaking && !backendReady && (
-        <p className="notice">
-          Waking the analyzer… the free backend can take ~30 seconds on the first visit.
-        </p>
+        <p className="notice notice-connecting">Connecting to the analyzer…</p>
       )}
       {loading && <p className="notice">Loading…</p>}
       {error && <p className="notice error">{error}</p>}
@@ -270,9 +279,26 @@ export default function App() {
                   <div className="graph-card-title">Live Probability</div>
                   <div className="graph-card-subtitle">Incoming websocket updates over elapsed time.</div>
                   <div className="graph-surface">
-                    <ProbabilityChart points={points} color="#e89a3d" height={320} />
+                    <ProbabilityChart points={points} color="#e89a3d" height={320} emptyMessage={liveEmptyMessage} />
                   </div>
                 </div>
+                {historyLoading && (
+                  <div className="graph-card">
+                    <div className="graph-card-title">Modeled decay</div>
+                    <div className="graph-surface">
+                      <div className="graph-empty">
+                        Computing history… this can take a few seconds for older transactions.
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {!historyLoading && !history && (
+                  <div className="graph-card">
+                    <div className="graph-card-subtitle" style={{ margin: 0 }}>
+                      Historical graphs appear once the transaction is confirmed.
+                    </div>
+                  </div>
+                )}
                 {history && (
                   <>
                     <div className="graph-card">

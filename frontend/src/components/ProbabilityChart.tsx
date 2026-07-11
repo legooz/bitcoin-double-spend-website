@@ -16,11 +16,18 @@ interface Props {
   color?: string;
   height?: number;
   showTooltip?: boolean;
+  emptyMessage?: string;
 }
 
-export function ProbabilityChart({ points, color = '#e89a3d', height = 300, showTooltip = true }: Props) {
+export function ProbabilityChart({
+  points,
+  color = '#e89a3d',
+  height = 300,
+  showTooltip = true,
+  emptyMessage = 'No data yet.',
+}: Props) {
   if (points.length === 0) {
-    return <div className="graph-empty">No data yet.</div>;
+    return <div className="graph-empty">{emptyMessage}</div>;
   }
   return (
     <ResponsiveContainer width="100%" height={height}>
