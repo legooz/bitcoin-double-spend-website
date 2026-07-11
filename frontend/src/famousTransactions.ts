@@ -9,8 +9,10 @@ export interface FamousTransaction {
 // Confirmation-speed scenarios: real early-mainnet transactions chosen for how
 // fast the blocks after them arrived, so the First 5 Hours graph shows the
 // contrast. "Slow" is the coinbase of block 16589 (June 2009), when the tiny
-// network mined blocks hours apart, so its risk stays elevated for hours; the
-// other two confirm promptly and their risk collapses.
+// network mined blocks hours apart, so its risk stays elevated for hours;
+// "Normal" confirms at a typical pace and its risk collapses. (A "fast" example
+// is omitted: once a couple of confirmations arrive, risk is negligible whatever
+// the pace, so it looks the same as normal.)
 export const SCENARIO_TRANSACTIONS: FamousTransaction[] = [
   {
     txid: '17ef5d6fe79b78b34d818db0d4681c9f97582b87209198b6e7f510802cfa4a0e',
@@ -19,10 +21,6 @@ export const SCENARIO_TRANSACTIONS: FamousTransaction[] = [
   {
     txid: '045795627ca29ec72a94c23a65ee775ea1949d60b6fba0938b75e1cfe1e6643e',
     label: 'Normal confirmations',
-  },
-  {
-    txid: '73beab87e8084a17051bb9cd60cecf92abf8a0c3b7511a22ce86148b2b947e6b',
-    label: 'Fast confirmations',
   },
 ];
 
