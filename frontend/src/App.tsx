@@ -46,7 +46,7 @@ export default function App() {
     const init = async () => {
       // The free backend (Render) sleeps and can take ~30-50s to wake. Retry the
       // initial fetches so the UI fills in once it's up, without a manual reload.
-      for (let attempt = 0; attempt < 20 && !cancelled; attempt++) {
+      for (let attempt = 0; attempt < 40 && !cancelled; attempt++) {
         try {
           const health = await fetchHealth();
           if (cancelled) return;
@@ -174,6 +174,9 @@ export default function App() {
         : status === 'closed'
           ? 'No further live updates (the transaction may already be confirmed).'
           : 'Waiting for the first update…';
+  // A confirmed transaction whose risk has already decayed to ~0 has nothing
+  // live to show; dim the live graph and say so.
+  const isSettled = summary != null && summary.blockhash !== '' && liveProbability < 1e-4;
 
   return (
     <div className="app">
@@ -279,7 +282,14 @@ export default function App() {
                   <div className="graph-card-title">Live Probability</div>
                   <div className="graph-card-subtitle">Incoming websocket updates over elapsed time.</div>
                   <div className="graph-surface">
-                    <ProbabilityChart points={points} color="#e89a3d" height={320} emptyMessage={liveEmptyMessage} />
+                    <div className={isSettled ? 'graph-dim' : undefined}>
+                      <ProbabilityChart points={points} color="#e89a3d" height={320} emptyMessage={liveEmptyMessage} />
+                    </div>
+                    {isSettled && (
+                      <div className="graph-overlay">
+                        Fully confirmed — double-spend risk is effectively zero.
+                      </div>
+                    )}
                   </div>
                 </div>
                 {historyLoading && (

@@ -208,17 +208,7 @@ h1, h2, h3, h4 {
 }
 
 .notice-connecting {
-  animation: notice-pulse 1.4s ease-in-out infinite;
-}
-
-@keyframes notice-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 1;
-  }
+  color: var(--muted);
 }
 
 .notice {
@@ -645,6 +635,24 @@ h1, h2, h3, h4 {
   border-radius: 14px;
   padding: 0.6rem;
   overflow: hidden;
+  position: relative;
+}
+
+.graph-dim {
+  opacity: 0.18;
+}
+
+.graph-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .graph-empty {
