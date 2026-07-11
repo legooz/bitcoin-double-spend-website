@@ -15,9 +15,10 @@ interface Props {
   points: ProbabilityPoint[];
   color?: string;
   height?: number;
+  showTooltip?: boolean;
 }
 
-export function ProbabilityChart({ points, color = '#e89a3d', height = 300 }: Props) {
+export function ProbabilityChart({ points, color = '#e89a3d', height = 300, showTooltip = true }: Props) {
   if (points.length === 0) {
     return <div className="graph-empty">No data yet.</div>;
   }
@@ -38,11 +39,13 @@ export function ProbabilityChart({ points, color = '#e89a3d', height = 300 }: Pr
           width={72}
           domain={[0, 'auto']}
         />
-        <Tooltip
-          formatter={(v) => [formatProbability(v as number), 'Double-spend']}
-          labelFormatter={(l) => `Elapsed: ${formatElapsed(l as number)}`}
-          contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#0f172a' }}
-        />
+        {showTooltip && (
+          <Tooltip
+            formatter={(v) => [formatProbability(v as number), 'Double-spend']}
+            labelFormatter={(l) => `Elapsed: ${formatElapsed(l as number)}`}
+            contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#0f172a' }}
+          />
+        )}
         <Line
           type="monotone"
           dataKey="probability"

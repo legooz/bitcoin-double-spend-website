@@ -34,14 +34,37 @@ export default function App() {
   const [dataSource, setDataSource] = useState<string>('demo');
   const [searchResetKey, setSearchResetKey] = useState(0);
   const [largestPool, setLargestPool] = useState<LargestPool | null>(null);
+  const [backendReady, setBackendReady] = useState(false);
+  const [backendWaking, setBackendWaking] = useState(false);
 
   const canStream = summary != null && !summary.is_coinbase;
   const { latest, points, status } = useProbabilityStream(activeTxid, committedAlpha, canStream);
 
   useEffect(() => {
-    fetchSamples().then(setSamples).catch(() => undefined);
-    fetchHealth().then((h) => setDataSource(h.data_source)).catch(() => undefined);
-    fetchLargestPool().then(setLargestPool).catch(() => setLargestPool(null));
+    let cancelled = false;
+    const init = async () => {
+      // The free backend (Render) sleeps and can take ~30-50s to wake. Retry the
+      // initial fetches so the UI fills in once it's up, without a manual reload.
+      for (let attempt = 0; attempt < 20 && !cancelled; attempt++) {
+        try {
+          const health = await fetchHealth();
+          if (cancelled) return;
+          setDataSource(health.data_source);
+          setBackendReady(true);
+          setBackendWaking(false);
+          fetchSamples().then(setSamples).catch(() => undefined);
+          fetchLargestPool().then(setLargestPool).catch(() => setLargestPool(null));
+          return;
+        } catch {
+          if (!cancelled) setBackendWaking(true);
+          await new Promise((resolve) => setTimeout(resolve, 4000));
+        }
+      }
+    };
+    init();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const load = useCallback(async (txid: string, alpha: number) => {
@@ -180,27 +203,33 @@ export default function App() {
         </div>
       )}
 
-      {dataSource === 'esplora' && (
-        <>
-          <div className="controls-extra">
-            <span className="samples-label">Examples:</span>
-            {FAMOUS_TRANSACTIONS.map((tx) => (
-              <button key={tx.txid} className="sample-chip" onClick={() => handleSearch(tx.txid)}>
-                {tx.label}
-              </button>
-            ))}
-          </div>
-          <div className="mempool-cta">
-            <button className="hero-search-button" onClick={loadMempoolSample} disabled={loading}>
-              Load a live mempool transaction
+      {(dataSource === 'esplora' || !backendReady) && (
+        <div className="controls-extra">
+          <span className="samples-label">Try one:</span>
+          {FAMOUS_TRANSACTIONS.map((tx) => (
+            <button key={tx.txid} className="sample-chip" onClick={() => handleSearch(tx.txid)}>
+              {tx.label}
             </button>
-            <button className="hero-search-button" onClick={loadConfirmedSample} disabled={loading}>
-              Load a recent confirmed transaction
-            </button>
-          </div>
-        </>
+          ))}
+        </div>
       )}
 
+      {dataSource === 'esplora' && (
+        <div className="mempool-cta">
+          <button className="hero-search-button" onClick={loadMempoolSample} disabled={loading}>
+            Load a live mempool transaction
+          </button>
+          <button className="hero-search-button" onClick={loadConfirmedSample} disabled={loading}>
+            Load a recent confirmed transaction
+          </button>
+        </div>
+      )}
+
+      {backendWaking && !backendReady && (
+        <p className="notice">
+          Waking the analyzer… the free backend can take ~30 seconds on the first visit.
+        </p>
+      )}
       {loading && <p className="notice">Loading…</p>}
       {error && <p className="notice error">{error}</p>}
 

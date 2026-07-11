@@ -92,21 +92,21 @@ export function Explainer() {
           <div className="graph-card-title">Stuck in the mempool</div>
           <div className="graph-card-subtitle">0 confirmations, so the risk climbs with time.</div>
           <div className="graph-surface">
-            <ProbabilityChart points={exampleMempool} color="#ef4444" height={190} />
+            <ProbabilityChart points={exampleMempool} color="#ef4444" height={190} showTooltip={false} />
           </div>
         </div>
         <div className="example-graph">
           <div className="graph-card-title">Normal confirmations</div>
           <div className="graph-card-subtitle">About one block every 10 minutes; the risk decays.</div>
           <div className="graph-surface">
-            <ProbabilityChart points={exampleNormal} color="#e89a3d" height={190} />
+            <ProbabilityChart points={exampleNormal} color="#e89a3d" height={190} showTooltip={false} />
           </div>
         </div>
         <div className="example-graph">
           <div className="graph-card-title">Fast confirmations</div>
           <div className="graph-card-subtitle">About one block every 3 minutes; the risk collapses fast.</div>
           <div className="graph-surface">
-            <ProbabilityChart points={exampleFast} color="#22c55e" height={190} />
+            <ProbabilityChart points={exampleFast} color="#22c55e" height={190} showTooltip={false} />
           </div>
         </div>
       </div>
