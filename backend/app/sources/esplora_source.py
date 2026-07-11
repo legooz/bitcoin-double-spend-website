@@ -39,12 +39,14 @@ _SATS_PER_BTC = 100_000_000
 _AVG_BLOCK_SECONDS = 600
 _HISTORY_MAX_CONFIRMATIONS = 100
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
+_POOL_TTL_SECONDS = 6 * 3600  # mining-pool shares drift slowly; cache for hours
 
 
 class EsploraSource:
     def __init__(self, settings: Settings) -> None:
         self._base = settings.esplora_base_url.rstrip("/")
         self._client = httpx.AsyncClient(timeout=20.0)
+        self._pool_cache: tuple[dict, float] | None = None
 
     async def aclose(self) -> None:
         await self._client.aclose()
@@ -97,6 +99,22 @@ class EsploraSource:
         except Exception:  # noqa: BLE001
             return None
         return txids[0] if txids else None
+
+    async def largest_mining_pool(self) -> dict | None:
+        # Cached for hours; pool shares change slowly and this hits an extra endpoint.
+        now = time.time()
+        if self._pool_cache and now - self._pool_cache[1] < _POOL_TTL_SECONDS:
+            return self._pool_cache[0]
+        try:
+            data = await self._get_json("/v1/mining/pools/1w")
+            pools = data["pools"]
+            total = data.get("blockCount") or sum(p["blockCount"] for p in pools)
+            top = max(pools, key=lambda p: p["blockCount"])
+            result = {"name": top["name"], "share": top["blockCount"] / total}
+            self._pool_cache = (result, now)
+            return result
+        except Exception:  # noqa: BLE001
+            return self._pool_cache[0] if self._pool_cache else None
 
     async def get_transaction(self, txid: str, alpha: float) -> TransactionSummary | None:
         tx = await self._get_json(f"/tx/{txid}")

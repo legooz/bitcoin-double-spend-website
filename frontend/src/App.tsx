@@ -4,16 +4,19 @@ import {
   ApiError,
   fetchHealth,
   fetchHistory,
+  fetchLargestPool,
   fetchMempoolSample,
   fetchSamples,
   fetchTransaction,
 } from './api/client';
+import type { LargestPool } from './api/client';
 import { AlphaControl } from './components/AlphaControl';
 import { Explainer } from './components/Explainer';
 import { ProbabilityCard } from './components/ProbabilityCard';
 import { ProbabilityChart } from './components/ProbabilityChart';
 import { SearchBar } from './components/SearchBar';
 import { SummaryPanel } from './components/SummaryPanel';
+import { TransactionHeader } from './components/TransactionHeader';
 import { useProbabilityStream } from './hooks/useProbabilityStream';
 import type { HistoryResponse, SampleTransaction, TransactionSummary } from './types';
 
@@ -28,6 +31,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [dataSource, setDataSource] = useState<string>('demo');
   const [searchResetKey, setSearchResetKey] = useState(0);
+  const [largestPool, setLargestPool] = useState<LargestPool | null>(null);
 
   const canStream = summary != null && !summary.is_coinbase;
   const { latest, points, status } = useProbabilityStream(activeTxid, committedAlpha, canStream);
@@ -35,6 +39,7 @@ export default function App() {
   useEffect(() => {
     fetchSamples().then(setSamples).catch(() => undefined);
     fetchHealth().then((h) => setDataSource(h.data_source)).catch(() => undefined);
+    fetchLargestPool().then(setLargestPool).catch(() => setLargestPool(null));
   }, []);
 
   const load = useCallback(async (txid: string, alpha: number) => {
@@ -87,6 +92,13 @@ export default function App() {
   const commitAlpha = () => {
     setCommittedAlpha(pendingAlpha);
     if (activeTxid) load(activeTxid, pendingAlpha);
+  };
+
+  const applyAlpha = (value: number) => {
+    const clamped = Math.min(Math.max(value, 0.01), 0.49);
+    setPendingAlpha(clamped);
+    setCommittedAlpha(clamped);
+    if (activeTxid) load(activeTxid, clamped);
   };
 
   const loadMempoolSample = async () => {
@@ -172,7 +184,15 @@ export default function App() {
 
       {summary && (
         <main className="results">
-          <AlphaControl pendingAlpha={pendingAlpha} onChange={setPendingAlpha} onCommit={commitAlpha} />
+          <TransactionHeader txid={summary.txid} explorerLink={dataSource === 'esplora'} />
+
+          <AlphaControl
+            pendingAlpha={pendingAlpha}
+            onChange={setPendingAlpha}
+            onCommit={commitAlpha}
+            onApply={applyAlpha}
+            largestPool={largestPool}
+          />
 
           <ProbabilityCard
             probability={liveProbability}
@@ -222,11 +242,7 @@ export default function App() {
             </section>
           )}
 
-          <SummaryPanel
-            tx={summary}
-            liveConfirmations={liveConfirmations}
-            explorerLink={dataSource === 'esplora'}
-          />
+          <SummaryPanel tx={summary} liveConfirmations={liveConfirmations} />
         </main>
       )}
 

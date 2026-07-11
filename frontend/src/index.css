@@ -467,6 +467,42 @@ h1, h2, h3, h4 {
   border-color: var(--accent);
 }
 
+.txid-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.txid-header .txid-row {
+  align-items: center;
+}
+
+.txid-header .txid-link,
+.txid-header .hash-text {
+  flex: 1;
+}
+
+.alpha-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.preset-btn {
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.preset-btn:hover {
+  border-color: var(--accent);
+}
+
 .io-grid {
   display: grid;
   grid-template-columns: 1fr;

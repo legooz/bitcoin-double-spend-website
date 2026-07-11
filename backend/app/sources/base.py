@@ -41,3 +41,7 @@ class BitcoinSource(Protocol):
     async def sample_mempool_txid(self) -> str | None:
         """Return a currently-unconfirmed txid to showcase, or None if unsupported."""
         ...
+
+    async def largest_mining_pool(self) -> dict | None:
+        """Return {"name", "share"} for the current largest mining pool, or None."""
+        ...

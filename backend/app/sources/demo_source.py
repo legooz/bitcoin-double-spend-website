@@ -55,6 +55,10 @@ class DemoSource:
     async def sample_mempool_txid(self) -> str | None:
         return None  # demo uses static samples, not the live mempool
 
+    async def largest_mining_pool(self) -> dict | None:
+        # Static stand-in so the preset works offline in demo mode.
+        return {"name": "the largest pool", "share": 0.25}
+
     async def get_transaction(self, txid: str, alpha: float) -> TransactionSummary | None:
         entry = self._find(txid)
         if entry is None:

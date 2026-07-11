@@ -50,6 +50,15 @@ export function fetchMempoolSample(): Promise<{ txid: string }> {
   return getJson<{ txid: string }>('/mempool/sample');
 }
 
+export interface LargestPool {
+  name: string;
+  share: number;
+}
+
+export function fetchLargestPool(): Promise<LargestPool> {
+  return getJson<LargestPool>('/mining/largest-pool');
+}
+
 export function fetchTransaction(txid: string, alpha: number): Promise<TransactionSummary> {
   return getJson<TransactionSummary>(`/transaction/${txid}?alpha=${alpha}`);
 }

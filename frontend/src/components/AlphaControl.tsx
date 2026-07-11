@@ -1,24 +1,14 @@
-import { useState } from 'react';
+import type { LargestPool } from '../api/client';
 
 interface Props {
   pendingAlpha: number;
   onChange: (alpha: number) => void;
   onCommit: () => void;
+  onApply: (alpha: number) => void;
+  largestPool: LargestPool | null;
 }
 
-export function AlphaControl({ pendingAlpha, onChange, onCommit }: Props) {
-  const [copied, setCopied] = useState(false);
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      // Clipboard may be unavailable (e.g. insecure context); ignore.
-    }
-  };
-
+export function AlphaControl({ pendingAlpha, onChange, onCommit, onApply, largestPool }: Props) {
   return (
     <div className="card controls-bar">
       <div className="alpha-block">
@@ -37,9 +27,21 @@ export function AlphaControl({ pendingAlpha, onChange, onCommit }: Props) {
           onKeyUp={onCommit}
         />
       </div>
-      <button className="copy-btn" onClick={copyLink} aria-label="Copy shareable link">
-        {copied ? 'Link copied' : 'Copy link'}
-      </button>
+
+      <div className="alpha-presets">
+        {largestPool && (
+          <button
+            className="preset-btn"
+            onClick={() => onApply(largestPool.share)}
+            title="A mining pool is many independent miners, so this is an upper bound for a single colluding attacker."
+          >
+            Largest pool: {largestPool.name} ≈ {Math.round(largestPool.share * 100)}%
+          </button>
+        )}
+        <button className="preset-btn" onClick={() => onApply(0.49)}>
+          Majority attack (49%)
+        </button>
+      </div>
     </div>
   );
 }
