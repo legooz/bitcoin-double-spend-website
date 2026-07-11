@@ -309,21 +309,14 @@ class EsploraSource:
                 break
 
         # First 5 hours: fine resolution with the REAL confirmation count at each
-        # step. Never run past the last block we fetched (no guessing the future).
-        limit = min(_FIVE_HOURS_SECONDS, int(block_times[-1] - t0))
+        # step, always drawn across the full 5-hour window for a consistent axis
+        # (past the last fetched block the count simply holds, and risk is already
+        # zero there for anything that confirmed promptly).
         first_5h_rows: list[tuple[float, float]] = []
-        negligible_since: int | None = None
-        for second in range(0, limit + 1, _FIRST_5H_STEP_SECONDS):
+        for second in range(0, _FIVE_HOURS_SECONDS + 1, _FIRST_5H_STEP_SECONDS):
             confirmations = confs_at(second)
             probability = double_spend_probability(float(second), confirmations, alpha)
             first_5h_rows.append((float(second), float(probability)))
-            if probability <= _NEGLIGIBLE_PROBABILITY:
-                if negligible_since is None:
-                    negligible_since = second
-                elif second - negligible_since >= _AVG_BLOCK_SECONDS:
-                    break
-            else:
-                negligible_since = None
 
         return HistoryResponse(
             txid=txid,
