@@ -33,7 +33,8 @@ _FIXTURE_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "demo_transac
 _AVG_BLOCK_SECONDS = 600
 _HISTORY_CONFIRMATIONS = 40
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
-_FIRST_5H_STEP_SECONDS = 20  # sample the 5h curve coarsely (LTTB smooths it) to stay fast
+_FIRST_5H_STEP_SECONDS = 5  # fine resolution through the decay region
+_NEGLIGIBLE_PROBABILITY = 1e-6  # stop adding points once risk is this close to zero
 
 
 class DemoSource:
@@ -119,20 +120,31 @@ class DemoSource:
 
         included_block_time = int(time.time()) - _HISTORY_CONFIRMATIONS * _AVG_BLOCK_SECONDS
 
-        # One point per (simulated) block: probability at each confirmation depth.
+        # One point per (simulated) block, stopping once risk is negligible.
         full_rows: list[tuple[float, float]] = []
         for confirmations in range(1, _HISTORY_CONFIRMATIONS + 1):
             elapsed = (confirmations - 1) * _AVG_BLOCK_SECONDS
             probability = p_double_spend_if_accepted_now(elapsed, confirmations, alpha)
             full_rows.append((float(elapsed), float(probability)))
+            if probability <= _NEGLIGIBLE_PROBABILITY:
+                break
 
-        # Dense per-second curve for the first 5 hours.
-        first_5h_limit = min(_FIVE_HOURS_SECONDS, int(full_rows[-1][0]))
+        # First 5 hours: fine resolution through the decay, then stop once the risk
+        # has stayed negligible for a full block (the flat tail carries no info).
+        first_5h_limit = min(_FIVE_HOURS_SECONDS, (_HISTORY_CONFIRMATIONS - 1) * _AVG_BLOCK_SECONDS)
         first_5h_rows: list[tuple[float, float]] = []
+        negligible_since: int | None = None
         for second in range(0, first_5h_limit + 1, _FIRST_5H_STEP_SECONDS):
             confirmations = min(1 + second // _AVG_BLOCK_SECONDS, _HISTORY_CONFIRMATIONS)
             probability = p_double_spend_if_accepted_now(second, confirmations, alpha)
             first_5h_rows.append((float(second), float(probability)))
+            if probability <= _NEGLIGIBLE_PROBABILITY:
+                if negligible_since is None:
+                    negligible_since = second
+                elif second - negligible_since >= _AVG_BLOCK_SECONDS:
+                    break
+            else:
+                negligible_since = None
 
         return HistoryResponse(
             txid=entry["txid"],
