@@ -50,6 +50,10 @@ export function fetchMempoolSample(): Promise<{ txid: string }> {
   return getJson<{ txid: string }>('/mempool/sample');
 }
 
+export function fetchConfirmedSample(): Promise<{ txid: string }> {
+  return getJson<{ txid: string }>('/confirmed/sample');
+}
+
 export interface LargestPool {
   name: string;
   share: number;

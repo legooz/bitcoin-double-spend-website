@@ -59,6 +59,9 @@ class DemoSource:
         # Static stand-in so the preset works offline in demo mode.
         return {"name": "the largest pool", "share": 0.25}
 
+    async def sample_confirmed_txid(self) -> str | None:
+        return None  # demo uses static samples
+
     async def get_transaction(self, txid: str, alpha: float) -> TransactionSummary | None:
         entry = self._find(txid)
         if entry is None:

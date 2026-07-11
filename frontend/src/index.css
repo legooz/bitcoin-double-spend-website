@@ -452,6 +452,15 @@ h1, h2, h3, h4 {
   text-decoration: underline;
 }
 
+.addr-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.addr-link:hover {
+  text-decoration: underline;
+}
+
 .copy-btn {
   flex-shrink: 0;
   background: transparent;

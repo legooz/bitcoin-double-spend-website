@@ -10,7 +10,30 @@ function estimatedFee(tx: TransactionSummary): number | null {
   return fee >= 0 ? fee : null;
 }
 
-export function SummaryPanel({ tx, liveConfirmations }: { tx: TransactionSummary; liveConfirmations: number }) {
+function AddressCell({ address, explorerLink }: { address: string | null; explorerLink: boolean }) {
+  const text = address ?? 'unknown';
+  if (explorerLink && address && address !== 'COINBASE') {
+    return (
+      <a
+        className="addr-text addr-link"
+        href={`https://mempool.space/address/${address}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {text}
+      </a>
+    );
+  }
+  return <div className="addr-text">{text}</div>;
+}
+
+interface Props {
+  tx: TransactionSummary;
+  liveConfirmations: number;
+  explorerLink: boolean;
+}
+
+export function SummaryPanel({ tx, liveConfirmations, explorerLink }: Props) {
   const fee = estimatedFee(tx);
   const dateMined = tx.blockhash === '' ? 'Mempool (unconfirmed)' : formatUtc(tx.time);
 
@@ -36,7 +59,18 @@ export function SummaryPanel({ tx, liveConfirmations }: { tx: TransactionSummary
 
         <div className="summary-card">
           <div className="section-title">BLOCK HASH</div>
-          <div className="hash-text">{tx.blockhash || 'N/A'}</div>
+          {explorerLink && tx.blockhash ? (
+            <a
+              className="hash-text txid-link"
+              href={`https://mempool.space/block/${tx.blockhash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {tx.blockhash}
+            </a>
+          ) : (
+            <div className="hash-text">{tx.blockhash || 'N/A'}</div>
+          )}
         </div>
       </div>
 
@@ -48,7 +82,7 @@ export function SummaryPanel({ tx, liveConfirmations }: { tx: TransactionSummary
           <div className="io-scroll">
             {tx.inputs.map((input, i) => (
               <div className="io-entry" key={i}>
-                <div className="addr-text">{tx.is_coinbase ? 'COINBASE' : input.address ?? 'unknown'}</div>
+                <AddressCell address={tx.is_coinbase ? 'COINBASE' : input.address} explorerLink={explorerLink} />
                 <div className="value-danger">
                   {input.value != null ? `-${formatBtc(input.value)}` : 'Block Reward'}
                 </div>
@@ -62,7 +96,7 @@ export function SummaryPanel({ tx, liveConfirmations }: { tx: TransactionSummary
           <div className="io-scroll">
             {tx.outputs.map((output, i) => (
               <div className="io-entry" key={i}>
-                <div className="addr-text">{output.addresses[0] ?? 'unknown'}</div>
+                <AddressCell address={output.addresses[0] ?? null} explorerLink={explorerLink} />
                 <div className="value-success">+{formatBtc(output.value)}</div>
               </div>
             ))}

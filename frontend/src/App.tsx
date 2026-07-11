@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import {
   ApiError,
+  fetchConfirmedSample,
   fetchHealth,
   fetchHistory,
   fetchLargestPool,
@@ -17,6 +18,7 @@ import { ProbabilityChart } from './components/ProbabilityChart';
 import { SearchBar } from './components/SearchBar';
 import { SummaryPanel } from './components/SummaryPanel';
 import { TransactionHeader } from './components/TransactionHeader';
+import { FAMOUS_TRANSACTIONS } from './famousTransactions';
 import { useProbabilityStream } from './hooks/useProbabilityStream';
 import type { HistoryResponse, SampleTransaction, TransactionSummary } from './types';
 
@@ -113,6 +115,18 @@ export default function App() {
     }
   };
 
+  const loadConfirmedSample = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { txid } = await fetchConfirmedSample();
+      await load(txid, committedAlpha);
+    } catch {
+      setError('Could not fetch a recent confirmed transaction right now.');
+      setLoading(false);
+    }
+  };
+
   const resetToHome = () => {
     setSummary(null);
     setActiveTxid(null);
@@ -167,14 +181,24 @@ export default function App() {
       )}
 
       {dataSource === 'esplora' && (
-        <div className="mempool-cta">
-          <button className="hero-search-button" onClick={loadMempoolSample} disabled={loading}>
-            Load a live mempool transaction
-          </button>
-          <span className="samples-label">
-            Real unconfirmed transaction from the network. Watch its double-spend risk in real time.
-          </span>
-        </div>
+        <>
+          <div className="controls-extra">
+            <span className="samples-label">Examples:</span>
+            {FAMOUS_TRANSACTIONS.map((tx) => (
+              <button key={tx.txid} className="sample-chip" onClick={() => handleSearch(tx.txid)}>
+                {tx.label}
+              </button>
+            ))}
+          </div>
+          <div className="mempool-cta">
+            <button className="hero-search-button" onClick={loadMempoolSample} disabled={loading}>
+              Load a live mempool transaction
+            </button>
+            <button className="hero-search-button" onClick={loadConfirmedSample} disabled={loading}>
+              Load a recent confirmed transaction
+            </button>
+          </div>
+        </>
       )}
 
       {loading && <p className="notice">Loading…</p>}
@@ -242,7 +266,11 @@ export default function App() {
             </section>
           )}
 
-          <SummaryPanel tx={summary} liveConfirmations={liveConfirmations} />
+          <SummaryPanel
+            tx={summary}
+            liveConfirmations={liveConfirmations}
+            explorerLink={dataSource === 'esplora'}
+          />
         </main>
       )}
 

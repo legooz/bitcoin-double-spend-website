@@ -54,6 +54,14 @@ async def largest_mining_pool(request: Request) -> dict:
     return pool
 
 
+@router.get("/confirmed/sample")
+async def confirmed_sample(request: Request) -> dict[str, str]:
+    txid = await _source(request).sample_confirmed_txid()
+    if not txid:
+        raise HTTPException(status_code=404, detail="No confirmed sample available in this mode.")
+    return {"txid": txid}
+
+
 @router.get("/transaction/{txid}", response_model=TransactionSummary)
 async def get_transaction(
     txid: str,

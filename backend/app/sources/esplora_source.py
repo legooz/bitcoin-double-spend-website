@@ -116,6 +116,17 @@ class EsploraSource:
         except Exception:  # noqa: BLE001
             return self._pool_cache[0] if self._pool_cache else None
 
+    async def sample_confirmed_txid(self) -> str | None:
+        # First non-coinbase transaction in the tip block (recently confirmed).
+        try:
+            tip = await self._get_text("/blocks/tip/hash")
+            txids = await self._get_json(f"/block/{tip}/txids")
+            if txids and len(txids) > 1:
+                return txids[1]  # index 0 is the coinbase
+            return txids[0] if txids else None
+        except Exception:  # noqa: BLE001
+            return None
+
     async def get_transaction(self, txid: str, alpha: float) -> TransactionSummary | None:
         tx = await self._get_json(f"/tx/{txid}")
         if tx is None:
