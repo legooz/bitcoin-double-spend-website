@@ -344,13 +344,7 @@ export default function App() {
             status={status}
           />
 
-          {summary.is_coinbase && (
-            <p className="notice">
-              Coinbase (block-reward) transaction: with no inputs to double-spend, the risk shown is the
-              chance the block is orphaned and the reward reversed — the same measure, and why coinbase
-              rewards are locked for 100 blocks.
-            </p>
-          )}
+          {summary.is_coinbase && <p className="notice">Coinbase transaction.</p>}
           <section className="graphs-section">
             <h2 className="graphs-title">Probability Graphs</h2>
             <p className="graphs-subtitle">
@@ -429,10 +423,14 @@ export default function App() {
           </a>
           .
         </p>
+        <p className="footer-credit">
+          This website was recreated by Lars Goozen, inspired by his capstone project with Caden Kane,
+          Derek Hodgkins, and Zong Xiong, and advised by Sebastian Neumayer.
+        </p>
         <p>
-          Portfolio demo. The probability model is real; in demo mode sample transactions are simulated so
-          the app runs without a Bitcoin node. Set the API's <code>DSCAP_DATA_SOURCE</code> to{' '}
-          <code>esplora</code> for live mainnet data.
+          {dataSource === 'demo'
+            ? "Demo mode: the probability model is real, but sample transactions are simulated so the app runs without a Bitcoin node."
+            : 'The probability model is real, and transactions are live Bitcoin mainnet data from the mempool.space API.'}
         </p>
       </footer>
     </div>
