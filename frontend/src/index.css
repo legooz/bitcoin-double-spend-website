@@ -208,7 +208,33 @@ h1, h2, h3, h4 {
 }
 
 .notice-connecting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
   color: var(--muted);
+}
+
+.spinner {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(147, 162, 196, 0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spinner-rotate 0.8s linear infinite;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
 }
 
 .notice {

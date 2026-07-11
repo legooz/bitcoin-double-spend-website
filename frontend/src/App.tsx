@@ -240,7 +240,12 @@ export default function App() {
       )}
 
       {backendWaking && !backendReady && (
-        <p className="notice notice-connecting">Connecting to the analyzer…</p>
+        <div className="notice notice-connecting" role="status">
+          <span className="spinner" aria-hidden="true" />
+          <span>
+            Waking the analyzer. The free server sleeps when idle, so the first load can take up to a minute.
+          </span>
+        </div>
       )}
       {loading && <p className="notice">Loading…</p>}
       {error && <p className="notice error">{error}</p>}
@@ -287,7 +292,7 @@ export default function App() {
                     </div>
                     {isSettled && (
                       <div className="graph-overlay">
-                        Fully confirmed — double-spend risk is effectively zero.
+                        Fully confirmed. Double-spend risk is effectively zero.
                       </div>
                     )}
                   </div>
