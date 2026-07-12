@@ -447,7 +447,7 @@ export default function App() {
           Derek Hodgkins, and Zong Xiong, and advised by Sebastian Neumayer.
         </p>
         <p>
-          {dataSource === 'demo'
+          {backendReady && dataSource === 'demo'
             ? "Demo mode: the probability model is real, but sample transactions are simulated so the app runs without a Bitcoin node."
             : 'The probability model is real, and transactions are live Bitcoin mainnet data from the mempool.space API.'}
         </p>
