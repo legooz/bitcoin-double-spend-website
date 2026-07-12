@@ -309,11 +309,14 @@ class EsploraSource:
                 break
 
         # First 5 hours: fine resolution with the REAL confirmation count at each
-        # step, always drawn across the full 5-hour window for a consistent axis
-        # (past the last fetched block the count simply holds, and risk is already
-        # zero there for anything that confirmed promptly).
+        # step, drawn only up to NOW — never into the future. For an old
+        # transaction the whole 5 hours has elapsed, so this is the full window;
+        # for a recent one it stops at the present, since we can't know future
+        # confirmations (drawing them would show risk rising into time that
+        # hasn't happened yet).
+        limit = max(0, min(_FIVE_HOURS_SECONDS, int(time.time()) - t0))
         first_5h_rows: list[tuple[float, float]] = []
-        for second in range(0, _FIVE_HOURS_SECONDS + 1, _FIRST_5H_STEP_SECONDS):
+        for second in range(0, limit + 1, _FIRST_5H_STEP_SECONDS):
             confirmations = confs_at(second)
             probability = double_spend_probability(float(second), confirmations, alpha)
             first_5h_rows.append((float(second), float(probability)))

@@ -17,6 +17,7 @@ import { ProbabilityCard } from './components/ProbabilityCard';
 import { ProbabilityChart } from './components/ProbabilityChart';
 import { SearchBar } from './components/SearchBar';
 import { SummaryPanel } from './components/SummaryPanel';
+import { SupportLinks } from './components/SupportLinks';
 import { TransactionHeader } from './components/TransactionHeader';
 import { FAMOUS_TRANSACTIONS, SCENARIO_TRANSACTIONS } from './famousTransactions';
 import { useProbabilityStream } from './hooks/useProbabilityStream';
@@ -35,7 +36,13 @@ export default function App() {
   const [searchResetKey, setSearchResetKey] = useState(0);
   const [largestPool, setLargestPool] = useState<LargestPool | null>(null);
   const [backendReady, setBackendReady] = useState(false);
+  // True only once the health check has actually reported the data source.
+  // backendReady can be set just by loading a tx, so it is NOT a safe signal
+  // for "we know the mode" — the footer relies on this instead.
+  const [healthConfirmed, setHealthConfirmed] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
+  // Bumped each time a new block refreshes the history graphs, to flash a cue.
+  const [blockCueKey, setBlockCueKey] = useState(0);
 
   const canStream = summary != null;
   const { latest, points, status } = useProbabilityStream(activeTxid, committedAlpha, canStream);
@@ -78,6 +85,7 @@ export default function App() {
           const health = await fetchHealth();
           if (cancelled) return;
           setDataSource(health.data_source);
+          setHealthConfirmed(true);
           setBackendReady(true);
           fetchSamples().then(setSamples).catch(() => undefined);
           loadLargestPool();
@@ -108,7 +116,10 @@ export default function App() {
     if (status !== 'open' || backendReady) return;
     setBackendReady(true);
     fetchHealth()
-      .then((health) => setDataSource(health.data_source))
+      .then((health) => {
+        setDataSource(health.data_source);
+        setHealthConfirmed(true);
+      })
       .catch(() => undefined);
     fetchSamples().then(setSamples).catch(() => undefined);
     loadLargestPool();
@@ -127,6 +138,8 @@ export default function App() {
     setSummary((prev) => (prev && prev.confirmations !== confs ? { ...prev, confirmations: confs } : prev));
     // The first tick just echoes the loaded summary; load() already fetched history.
     if (isFirstTick) return;
+    // A real new block arrived — refresh history and flash the "updated" cue.
+    setBlockCueKey((key) => key + 1);
     setHistoryLoading(true);
     fetchHistory(activeTxid, committedAlpha)
       .then(setHistory)
@@ -140,6 +153,7 @@ export default function App() {
     setHistory(null);
     setSummary(null);
     lastHistoryConfs.current = -1;
+    setBlockCueKey(0); // clear any lingering "new block" cue from the previous tx
     try {
       const result = await fetchTransaction(txid, alpha);
       // Reaching the backend to load a tx proves it's up, even if the background
@@ -193,7 +207,10 @@ export default function App() {
   };
 
   const applyAlpha = (value: number) => {
-    const clamped = Math.min(Math.max(value, 0.01), 0.49);
+    // Round to 2 decimals so it matches the slider steps and the alpha written
+    // to the URL (toFixed(2)) — otherwise a preset like the largest-pool share
+    // (e.g. 0.2469) wouldn't match on refresh and the live stream wouldn't restore.
+    const clamped = Math.round(Math.min(Math.max(value, 0.01), 0.49) * 100) / 100;
     setPendingAlpha(clamped);
     setCommittedAlpha(clamped);
     if (activeTxid) load(activeTxid, clamped);
@@ -250,6 +267,9 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="top-bar">
+        <SupportLinks />
+      </div>
       <header
         className="hero-brand clickable"
         role="button"
@@ -348,6 +368,11 @@ export default function App() {
             <h2 className="graphs-title">Probability Graphs</h2>
             <p className="graphs-subtitle">
               α {committedAlpha.toFixed(2)} · {history ? 'real block-time decay + live stream' : 'live stream'}
+              {blockCueKey > 0 && (
+                <span key={blockCueKey} className="block-cue" role="status">
+                  New block · graphs updated
+                </span>
+              )}
             </p>
             <div className="graph-grid">
               <div className="graph-card graph-card-wide">
@@ -427,7 +452,7 @@ export default function App() {
           Derek Hodgkins, and Zong Xiong, and advised by Sebastian Neumayer.
         </p>
         <p>
-          {backendReady && dataSource === 'demo'
+          {healthConfirmed && dataSource === 'demo'
             ? "Demo mode: the probability model is real, but sample transactions are simulated so the app runs without a Bitcoin node."
             : 'The probability model is real, and transactions are live Bitcoin mainnet data from the mempool.space API.'}
         </p>
