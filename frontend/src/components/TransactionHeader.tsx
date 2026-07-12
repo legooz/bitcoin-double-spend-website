@@ -28,7 +28,7 @@ export function TransactionHeader({ txid, explorerLink }: Props) {
         {explorerLink ? (
           <a
             className="hash-text txid-link"
-            href={`https://mempool.space/tx/${txid}`}
+            href={`https://bitref.com/tx/${txid}`}
             target="_blank"
             rel="noopener noreferrer"
           >

@@ -18,8 +18,8 @@ export function Explainer() {
         </p>
         <p>
           <strong>How to use:</strong> go to your favorite blockchain explorer (like{' '}
-          <a href="https://mempool.space" target="_blank" rel="noopener noreferrer">
-            mempool.space
+          <a href="https://bitref.com" target="_blank" rel="noopener noreferrer">
+            bitref.com
           </a>
           ) and copy a transaction ID, or paste your own transaction ID into the search bar above.
         </p>

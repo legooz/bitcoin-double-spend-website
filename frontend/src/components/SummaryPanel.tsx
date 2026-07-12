@@ -16,7 +16,7 @@ function AddressCell({ address, explorerLink }: { address: string | null; explor
     return (
       <a
         className="addr-text addr-link"
-        href={`https://mempool.space/address/${address}`}
+        href={`https://bitref.com/${address}`}
         target="_blank"
         rel="noopener noreferrer"
       >
