@@ -5,8 +5,6 @@ import { useState } from 'react';
 // anywhere (or copy anything) yet.
 const BUY_ME_A_COFFEE_URL = ''; // e.g. 'https://www.buymeacoffee.com/larsgoozen'
 const BITCOIN_ADDRESS = ''; //     e.g. 'bc1q...'  (copied when "Send Bitcoin" is clicked)
-const WEBSITE_URL = ''; //         e.g. 'https://larsgoozen.com'
-const AUTHOR_NAME = 'Lars Goozen';
 
 // Support / credit row shown in the top-right of the page.
 export function SupportLinks() {
@@ -42,16 +40,6 @@ export function SupportLinks() {
       >
         ₿ {copied ? 'Address copied' : 'Send Bitcoin'}
       </button>
-      <span className="support-credit">
-        Made by{' '}
-        {WEBSITE_URL ? (
-          <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer">
-            {AUTHOR_NAME}
-          </a>
-        ) : (
-          <span className="support-author">{AUTHOR_NAME}</span>
-        )}
-      </span>
     </div>
   );
 }
