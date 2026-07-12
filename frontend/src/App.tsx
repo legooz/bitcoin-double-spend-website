@@ -35,9 +35,6 @@ export default function App() {
   const [searchResetKey, setSearchResetKey] = useState(0);
   const [largestPool, setLargestPool] = useState<LargestPool | null>(null);
   const [backendReady, setBackendReady] = useState(false);
-  const [backendWaking, setBackendWaking] = useState(false);
-  const [connectFailed, setConnectFailed] = useState(false);
-  const [retryKey, setRetryKey] = useState(0);
   const [historyLoading, setHistoryLoading] = useState(false);
 
   const canStream = summary != null;
@@ -73,29 +70,21 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
     const init = async () => {
-      // The free backend (Render) sleeps and can take ~30-50s to wake. Retry the
-      // initial fetches so the UI fills in once it's up, without a manual reload.
-      setConnectFailed(false);
+      // The free backend (Render) sleeps and can take ~30-50s to wake. Poll health
+      // in the background so data-source / samples / pool fill in once it's up.
+      // Nothing is shown here — a cold start only surfaces while a search loads.
       for (let attempt = 0; attempt < 40 && !cancelled; attempt++) {
         try {
           const health = await fetchHealth();
           if (cancelled) return;
           setDataSource(health.data_source);
           setBackendReady(true);
-          setBackendWaking(false);
           fetchSamples().then(setSamples).catch(() => undefined);
           loadLargestPool();
           return;
         } catch {
-          if (!cancelled) setBackendWaking(true);
           await new Promise((resolve) => setTimeout(resolve, 4000));
         }
-      }
-      // Budget exhausted without a response: stop the spinner and offer a retry
-      // instead of spinning forever.
-      if (!cancelled) {
-        setBackendWaking(false);
-        setConnectFailed(true);
       }
     };
     init();
@@ -103,7 +92,7 @@ export default function App() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [retryKey]);
+  }, []);
 
   // If the pool chip never loaded (slow/cold upstream), try again once a
   // transaction is on screen, so the recommendation is present when it's needed.
@@ -117,7 +106,6 @@ export default function App() {
   // shows while probability and graphs are actively updating.
   useEffect(() => {
     if (status !== 'open' || backendReady) return;
-    setConnectFailed(false);
     setBackendReady(true);
     fetchHealth()
       .then((health) => setDataSource(health.data_source))
@@ -154,10 +142,9 @@ export default function App() {
     lastHistoryConfs.current = -1;
     try {
       const result = await fetchTransaction(txid, alpha);
-      // Reaching the backend to load a tx proves it's up; drop any stale
-      // "couldn't reach the analyzer" state from the initial health probe.
+      // Reaching the backend to load a tx proves it's up, even if the background
+      // health probe hasn't answered yet.
       setBackendReady(true);
-      setConnectFailed(false);
       setSummary(result);
       setActiveTxid(txid);
       // Reflect the loaded transaction in the URL so it's shareable / refresh-safe.
@@ -322,23 +309,16 @@ export default function App() {
         </div>
       )}
 
-      {backendWaking && !backendReady && (
+      {loading && (
         <div className="notice notice-connecting" role="status">
           <span className="spinner" aria-hidden="true" />
           <span>
-            Waking the analyzer. The free server sleeps when idle, so the first load can take up to a minute.
+            {backendReady
+              ? 'Loading…'
+              : 'Loading… the free server sleeps when idle, so the first load can take up to a minute.'}
           </span>
         </div>
       )}
-      {connectFailed && !backendReady && (
-        <p className="notice error">
-          Couldn't reach the analyzer after retrying.{' '}
-          <button className="preset-btn" onClick={() => setRetryKey((key) => key + 1)}>
-            Retry
-          </button>
-        </p>
-      )}
-      {loading && <p className="notice">Loading…</p>}
       {error && <p className="notice error">{error}</p>}
 
       {!loading && !summary && <Explainer />}
