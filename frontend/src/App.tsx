@@ -153,6 +153,7 @@ export default function App() {
     setHistory(null);
     setSummary(null);
     lastHistoryConfs.current = -1;
+    setBlockCueKey(0); // clear any lingering "new block" cue from the previous tx
     try {
       const result = await fetchTransaction(txid, alpha);
       // Reaching the backend to load a tx proves it's up, even if the background
@@ -206,7 +207,10 @@ export default function App() {
   };
 
   const applyAlpha = (value: number) => {
-    const clamped = Math.min(Math.max(value, 0.01), 0.49);
+    // Round to 2 decimals so it matches the slider steps and the alpha written
+    // to the URL (toFixed(2)) — otherwise a preset like the largest-pool share
+    // (e.g. 0.2469) wouldn't match on refresh and the live stream wouldn't restore.
+    const clamped = Math.round(Math.min(Math.max(value, 0.01), 0.49) * 100) / 100;
     setPendingAlpha(clamped);
     setCommittedAlpha(clamped);
     if (activeTxid) load(activeTxid, clamped);
