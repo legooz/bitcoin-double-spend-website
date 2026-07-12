@@ -111,6 +111,21 @@ export default function App() {
     if (summary && !largestPool) loadLargestPool();
   }, [summary, largestPool, loadLargestPool]);
 
+  // The live stream reaching the backend proves it's up — even if the initial
+  // health probe gave up during a slow cold start. Clear the stale "couldn't
+  // reach" state and sync the rest of the app, so the failure banner never
+  // shows while probability and graphs are actively updating.
+  useEffect(() => {
+    if (status !== 'open' || backendReady) return;
+    setConnectFailed(false);
+    setBackendReady(true);
+    fetchHealth()
+      .then((health) => setDataSource(health.data_source))
+      .catch(() => undefined);
+    fetchSamples().then(setSamples).catch(() => undefined);
+    loadLargestPool();
+  }, [status, backendReady, loadLargestPool]);
+
   // When the live stream reports a new confirmation (a block arrived), refresh
   // the history graphs in place and keep the summary's confirmation count
   // current. This deliberately does NOT touch the WebSocket, so the live graph
@@ -139,6 +154,10 @@ export default function App() {
     lastHistoryConfs.current = -1;
     try {
       const result = await fetchTransaction(txid, alpha);
+      // Reaching the backend to load a tx proves it's up; drop any stale
+      // "couldn't reach the analyzer" state from the initial health probe.
+      setBackendReady(true);
+      setConnectFailed(false);
       setSummary(result);
       setActiveTxid(txid);
       // Reflect the loaded transaction in the URL so it's shareable / refresh-safe.
