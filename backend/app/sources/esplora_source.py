@@ -44,6 +44,7 @@ _HISTORY_MAX_CONFIRMATIONS = 100
 # any realistic pace, and enough of the tail for risk to reach zero.
 _HISTORY_MAX_BLOCKS = 48
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
+_ONE_HOUR_SECONDS = 60 * 60
 _POOL_TTL_SECONDS = 6 * 3600  # mining-pool shares drift slowly; cache for hours
 _FIRST_5H_STEP_SECONDS = 5  # fine resolution through the decay region
 # Stop extending the Full History once risk is this close to zero (~1e-10). This
@@ -372,6 +373,10 @@ class EsploraSource:
             probability = double_spend_probability(float(second), confirmations, alpha)
             first_5h_rows.append((float(second), float(probability)))
 
+        # First hour: the same fine-grained curve cut at 60 minutes, where the
+        # risk moves fastest. Sliced (not recomputed) so the views always agree.
+        first_1h_rows = [row for row in first_5h_rows if row[0] <= _ONE_HOUR_SECONDS]
+
         return HistoryResponse(
             txid=txid,
             included_block_height=block_height,
@@ -379,6 +384,7 @@ class EsploraSource:
             alpha=alpha,
             full_graph=_to_view(full_rows, lttb_threshold),
             first_5h=_to_view(first_5h_rows, lttb_threshold),
+            first_1h=_to_view(first_1h_rows, lttb_threshold),
         )
 
 

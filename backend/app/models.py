@@ -57,6 +57,7 @@ class HistoryResponse(BaseModel):
     alpha: float
     full_graph: HistoryView
     first_5h: HistoryView
+    first_1h: HistoryView
 
 
 class SampleTransaction(BaseModel):

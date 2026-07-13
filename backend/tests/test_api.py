@@ -49,6 +49,9 @@ def test_history_for_sample_transaction():
         body = response.json()
         assert len(body["full_graph"]["points"]) > 0
         assert len(body["first_5h"]["points"]) > 0
+        first_1h = body["first_1h"]["points"]
+        assert len(first_1h) > 0
+        assert all(p["elapsed_seconds"] <= 3600 for p in first_1h)
 
 
 def test_websocket_streams_updates():

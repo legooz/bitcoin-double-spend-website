@@ -405,6 +405,17 @@ export default function App() {
               )}
               {history && (
                 <>
+                  {/* Guarded so a not-yet-redeployed backend (no first_1h field)
+                      degrades to the old two graphs instead of crashing. */}
+                  {history.first_1h && (
+                    <div className="graph-card">
+                      <div className="graph-card-title">First Hour</div>
+                      <div className="graph-card-subtitle">First sixty minutes, calculated from the first confirmation.</div>
+                      <div className="graph-surface">
+                        <ProbabilityChart points={history.first_1h.points} color="#8b5cf6" height={320} />
+                      </div>
+                    </div>
+                  )}
                   <div className="graph-card">
                     <div className="graph-card-title">First 5 Hours</div>
                     <div className="graph-card-subtitle">First five hours, calculated from the first confirmation.</div>
