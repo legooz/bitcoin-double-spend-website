@@ -8,6 +8,12 @@ interface Props {
   largestPool: LargestPool | null;
 }
 
+const ALPHA_MIN = 0.01;
+const ALPHA_MAX = 1;
+const CERTAIN_AT = 0.5; // >= 50% hash power => double-spend is certain
+// Where 50% sits along the 0.01..1.0 track, as a percentage.
+const CERTAIN_PCT = ((CERTAIN_AT - ALPHA_MIN) / (ALPHA_MAX - ALPHA_MIN)) * 100;
+
 export function AlphaControl({ pendingAlpha, onChange, onCommit, onApply, largestPool }: Props) {
   return (
     <div className="card controls-bar">
@@ -15,17 +21,28 @@ export function AlphaControl({ pendingAlpha, onChange, onCommit, onApply, larges
         <label>
           Attacker hash power (α): <strong>{pendingAlpha.toFixed(2)}</strong>
         </label>
-        <input
-          type="range"
-          min="0.01"
-          max="0.49"
-          step="0.01"
-          value={pendingAlpha}
-          className="alpha-slider"
-          onChange={(e) => onChange(parseFloat(e.target.value))}
-          onPointerUp={onCommit}
-          onKeyUp={onCommit}
-        />
+        <div className="alpha-slider-wrap">
+          <input
+            type="range"
+            min={ALPHA_MIN}
+            max={ALPHA_MAX}
+            step="0.01"
+            value={pendingAlpha}
+            className="alpha-slider"
+            onChange={(e) => onChange(parseFloat(e.target.value))}
+            onPointerUp={onCommit}
+            onKeyUp={onCommit}
+          />
+          <span
+            className="alpha-tick"
+            style={{ left: `${CERTAIN_PCT}%` }}
+            title="At 50%+ hash power a double-spend is essentially certain (100%)."
+            aria-hidden="true"
+          />
+          <span className="alpha-tick-label" style={{ left: `${CERTAIN_PCT}%` }}>
+            50% · certain
+          </span>
+        </div>
       </div>
 
       <div className="alpha-presets">
@@ -39,6 +56,13 @@ export function AlphaControl({ pendingAlpha, onChange, onCommit, onApply, larges
             Largest pool: {largestPool.name} ≈ {Math.round(largestPool.share * 100)}%
           </button>
         )}
+        <button
+          className="preset-btn"
+          onClick={() => onApply(0.51)}
+          title="GHash.io briefly exceeded 51% of Bitcoin's hash power in 2014 — enough to double-spend at will."
+        >
+          GHash.io ≈ 51% (2014)
+        </button>
         <button className="preset-btn" onClick={() => onApply(0.49)}>
           Majority attack (49%)
         </button>
