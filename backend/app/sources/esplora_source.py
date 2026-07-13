@@ -302,14 +302,38 @@ class EsploraSource:
             # Number of blocks mined by t0 + elapsed (at least the inclusion block).
             return max(1, bisect.bisect_right(block_times, t0 + elapsed_seconds))
 
-        # Full graph: one point per confirmation at its real elapsed time.
-        full_rows: list[tuple[float, float]] = []
+        # Full graph: sample the real confirmation timeline FINELY (not one point
+        # per confirmation) so even a barely-confirmed transaction shows a proper
+        # curve instead of a single dot. Run from inclusion until risk is
+        # negligible for good; if the tx is still early in its life, run up to
+        # "now" (never past it — no future projection). This makes the Full
+        # History match the First 5 Hours view for a freshly-confirmed tx and
+        # only diverge as the transaction matures past five hours.
+        now = int(time.time())
+        decay_end: int | None = None
         for k in range(1, len(block_times) + 1):
-            elapsed = float(block_times[k - 1] - t0)
-            probability = double_spend_probability(elapsed, k, alpha)
-            full_rows.append((elapsed, float(probability)))
-            if probability <= _NEGLIGIBLE_PROBABILITY and k >= 2:
+            e = int(block_times[k - 1] - t0)
+            if k >= 2 and double_spend_probability(float(e), k, alpha) <= _NEGLIGIBLE_PROBABILITY:
+                decay_end = e
                 break
+        if decay_end is not None:
+            full_limit = decay_end
+        elif len(block_times) < _HISTORY_MAX_BLOCKS:
+            # Fetched every block up to the chain tip, so the last one is recent;
+            # extend to the present (risk is still rising at a low confirmation count).
+            full_limit = now - t0
+        else:
+            # Hit the block-fetch cap; only trust up to the last block we have.
+            full_limit = int(block_times[-1] - t0)
+        full_limit = max(0, min(full_limit, now - t0))
+        # Step keeps the raw point count bounded (~800) for long windows; LTTB
+        # downsamples afterwards.
+        full_step = max(_FIRST_5H_STEP_SECONDS, full_limit // 800)
+        full_rows: list[tuple[float, float]] = []
+        for second in range(0, full_limit + 1, full_step):
+            confirmations = confs_at(second)
+            probability = double_spend_probability(float(second), confirmations, alpha)
+            full_rows.append((float(second), float(probability)))
 
         # First 5 hours: fine resolution with the REAL confirmation count at each
         # step, drawn only up to NOW — never into the future. For an old
