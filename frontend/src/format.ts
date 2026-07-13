@@ -16,6 +16,19 @@ export function formatElapsed(seconds: number): string {
   return `${hours}h ${minutes}m`;
 }
 
+// Compact UTC date-time for chart axis ticks, e.g. "May 22 '10 6:26p".
+export function formatAxisDate(unixSeconds: number): string {
+  const d = new Date(unixSeconds * 1000);
+  const mon = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+  const day = d.getUTCDate();
+  const yr = String(d.getUTCFullYear()).slice(2);
+  let hour = d.getUTCHours();
+  const min = String(d.getUTCMinutes()).padStart(2, '0');
+  const ap = hour >= 12 ? 'p' : 'a';
+  hour = hour % 12 || 12;
+  return `${mon} ${day} '${yr} ${hour}:${min}${ap}`;
+}
+
 export function formatBtc(value: number): string {
   return `${value.toFixed(8)} BTC`;
 }

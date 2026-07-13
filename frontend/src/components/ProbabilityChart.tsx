@@ -9,7 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { formatElapsed, formatProbability } from '../format';
+import { formatAxisDate, formatElapsed, formatProbability, formatUtc } from '../format';
 import type { ProbabilityPoint } from '../types';
 
 interface Props {
@@ -19,6 +19,12 @@ interface Props {
   showTooltip?: boolean;
   /** Enable scroll-wheel zoom. Defaults to `showTooltip` so non-interactive example charts stay static. */
   zoomable?: boolean;
+  /**
+   * When set (unix seconds of the transaction's broadcast/inclusion time), the X
+   * axis shows absolute dates (baseTime + elapsed) instead of relative elapsed
+   * time — used by the Full History graph so it reads in real dates.
+   */
+  xBaseTime?: number;
   emptyMessage?: string;
 }
 
@@ -28,8 +34,13 @@ export function ProbabilityChart({
   height = 300,
   showTooltip = true,
   zoomable = showTooltip,
+  xBaseTime,
   emptyMessage = 'No data yet.',
 }: Props) {
+  const xTick = (v: number) =>
+    xBaseTime != null ? formatAxisDate(xBaseTime + v) : formatElapsed(v);
+  const xTooltip = (l: number) =>
+    xBaseTime != null ? formatUtc(xBaseTime + l) : `Elapsed: ${formatElapsed(l)}`;
   // Wrapper element that owns the non-passive wheel listener.
   const containerRef = useRef<HTMLDivElement>(null);
   // Data-x (elapsed_seconds) under the cursor; used as the zoom focus.
@@ -176,7 +187,8 @@ export function ProbabilityChart({
             type="number"
             domain={zoom ?? ['dataMin', 'dataMax']}
             allowDataOverflow
-            tickFormatter={(v) => formatElapsed(v as number)}
+            tickFormatter={(v) => xTick(v as number)}
+            minTickGap={xBaseTime != null ? 60 : 20}
             stroke="#64748b"
             fontSize={12}
           />
@@ -190,7 +202,7 @@ export function ProbabilityChart({
           {showTooltip && (
             <Tooltip
               formatter={(v) => [formatProbability(v as number), 'Double-spend']}
-              labelFormatter={(l) => `Elapsed: ${formatElapsed(l as number)}`}
+              labelFormatter={(l) => xTooltip(l as number)}
               contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#0f172a' }}
             />
           )}
