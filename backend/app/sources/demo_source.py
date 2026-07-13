@@ -59,9 +59,9 @@ class DemoSource:
         return None  # demo uses static samples, not the live mempool
 
     async def largest_mining_pool(self) -> dict | None:
-        # Static stand-in so the preset works offline in demo mode. The name
-        # renders after "Current largest pool:" in the UI.
-        return {"name": "unknown", "share": 0.25}
+        # Static stand-in so the preset works offline in demo mode. An empty
+        # name makes the chip read "Current largest pool ≈ 25%" with no name.
+        return {"name": "", "share": 0.25}
 
     async def sample_confirmed_txid(self) -> str | None:
         return None  # demo uses static samples

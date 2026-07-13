@@ -128,10 +128,9 @@ class EsploraSource:
             self._pool_cache = (result, now)
             return result
         except Exception:  # noqa: BLE001
-            # Never hide the preset; fall back to a representative value. The
-            # name renders after "Current largest pool:" in the UI, so it must
-            # read naturally there.
-            return self._pool_cache[0] if self._pool_cache else {"name": "unknown", "share": 0.25}
+            # Never hide the preset; fall back to a representative value. An
+            # empty name makes the chip read "Current largest pool ≈ 25%".
+            return self._pool_cache[0] if self._pool_cache else {"name": "", "share": 0.25}
 
     async def sample_confirmed_txid(self) -> str | None:
         # First non-coinbase transaction in the tip block (recently confirmed).

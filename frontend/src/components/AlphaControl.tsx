@@ -53,7 +53,8 @@ export function AlphaControl({ pendingAlpha, onChange, onCommit, onApply, larges
             onClick={() => onApply(largestPool.share)}
             title="A mining pool is many independent miners, so this is an upper bound for a single colluding attacker."
           >
-            Current largest pool: {largestPool.name} ≈ {Math.round(largestPool.share * 100)}%
+            {largestPool.name ? `Current largest pool: ${largestPool.name}` : 'Current largest pool'} ≈{' '}
+            {Math.round(largestPool.share * 100)}%
           </button>
         )}
         <button
