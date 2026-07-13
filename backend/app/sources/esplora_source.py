@@ -208,7 +208,6 @@ class EsploraSource:
 
         blocktime = summary.blocktime
         confirmations = summary.confirmations
-        confirmed = summary.blockhash != ""
         ticks = 0
 
         while True:
@@ -228,12 +227,13 @@ class EsploraSource:
             if ticks % 20 == 0:
                 refreshed = await self.get_transaction(txid, alpha)
                 if refreshed is not None:
+                    # Update the confirmation count but KEEP the original broadcast
+                    # (first-seen) clock. The model's elapsed time is measured from
+                    # broadcast; switching to the later block time here made elapsed
+                    # jump backwards the moment the tx confirmed, and the frontend's
+                    # monotonic-append guard then rejected every later update —
+                    # freezing the live graph on the first confirmation.
                     confirmations = refreshed.confirmations
-                    # Keep the first-seen clock stable while unconfirmed; adopt the
-                    # real block time only once the transaction actually confirms.
-                    if refreshed.blockhash != "":
-                        confirmed = True
-                        blocktime = refreshed.blocktime
             await asyncio.sleep(0.5)
 
     async def _block_times(self, start_height: int, count: int) -> list[int]:

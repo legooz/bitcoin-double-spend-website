@@ -417,9 +417,14 @@ export default function App() {
                   </div>
                   <div className="graph-card">
                     <div className="graph-card-title">Full History</div>
-                    <div className="graph-card-subtitle">Decay across the transaction's life, from real block times.</div>
+                    <div className="graph-card-subtitle">Decay across the transaction's life, by date.</div>
                     <div className="graph-surface">
-                      <ProbabilityChart points={history.full_graph.points} color="#22c55e" height={320} />
+                      <ProbabilityChart
+                        points={history.full_graph.points}
+                        color="#22c55e"
+                        height={320}
+                        xBaseTime={history.included_block_time}
+                      />
                     </div>
                   </div>
                 </>
