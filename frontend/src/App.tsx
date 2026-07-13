@@ -109,11 +109,13 @@ export default function App() {
   }, [summary, largestPool, loadLargestPool]);
 
   // The live stream reaching the backend proves it's up — even if the initial
-  // health probe gave up during a slow cold start. Clear the stale "couldn't
-  // reach" state and sync the rest of the app, so the failure banner never
-  // shows while probability and graphs are actively updating.
+  // health probe gave up during a slow cold start. Gate on healthConfirmed (not
+  // backendReady): loading a tx sets backendReady on its own without learning
+  // the data source, and if we stopped here the esplora-only controls ("Try
+  // one", the load buttons) would vanish because dataSource stayed at its
+  // 'demo' default. Re-fetch health so the data source is actually resolved.
   useEffect(() => {
-    if (status !== 'open' || backendReady) return;
+    if (status !== 'open' || healthConfirmed) return;
     setBackendReady(true);
     fetchHealth()
       .then((health) => {
@@ -123,7 +125,7 @@ export default function App() {
       .catch(() => undefined);
     fetchSamples().then(setSamples).catch(() => undefined);
     loadLargestPool();
-  }, [status, backendReady, loadLargestPool]);
+  }, [status, healthConfirmed, loadLargestPool]);
 
   // When the live stream reports a new confirmation (a block arrived), refresh
   // the history graphs in place and keep the summary's confirmation count
@@ -307,18 +309,7 @@ export default function App() {
         </div>
       )}
 
-      {(dataSource === 'esplora' || !backendReady) && (
-        <div className="controls-extra">
-          <span className="samples-label">Try one:</span>
-          {[...SCENARIO_TRANSACTIONS, ...FAMOUS_TRANSACTIONS].map((tx) => (
-            <button key={tx.txid} className="sample-chip" onClick={() => handleSearch(tx.txid)}>
-              {tx.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {(dataSource === 'esplora' || !backendReady) && (
+      {(dataSource === 'esplora' || !healthConfirmed) && (
         <div className="mempool-cta">
           <button className="hero-search-button" onClick={loadMempoolSample} disabled={loading}>
             Load a live mempool transaction
@@ -326,6 +317,17 @@ export default function App() {
           <button className="hero-search-button" onClick={loadConfirmedSample} disabled={loading}>
             Load a recent confirmed transaction
           </button>
+        </div>
+      )}
+
+      {(dataSource === 'esplora' || !healthConfirmed) && (
+        <div className="controls-extra">
+          <span className="samples-label">Try one:</span>
+          {[...SCENARIO_TRANSACTIONS, ...FAMOUS_TRANSACTIONS].map((tx) => (
+            <button key={tx.txid} className="sample-chip" onClick={() => handleSearch(tx.txid)}>
+              {tx.label}
+            </button>
+          ))}
         </div>
       )}
 
