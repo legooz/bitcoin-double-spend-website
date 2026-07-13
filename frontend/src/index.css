@@ -303,12 +303,18 @@ h1, h2, h3, h4 {
   background: linear-gradient(135deg, var(--card-a), var(--card-b));
 }
 
-/* Align the three stat values (Live status pill vs. big numbers) on a common
-   vertical band so the columns line up. */
+/* Align the three stat values (Live status text vs. big numbers) on a common
+   vertical band so each value sits flush-left under its label. */
 .prob-stats > div > *:last-child {
   display: inline-flex;
   align-items: center;
   min-height: 1.75rem;
+}
+
+/* Values must not stretch to the column width (a stretched status pill made
+   its text look indented relative to the label above it). */
+.prob-stats > div {
+  align-items: flex-start;
 }
 
 /* --- Top-bar support / credit --- */
@@ -822,11 +828,12 @@ h1, h2, h3, h4 {
   padding: 2rem 0;
 }
 
+/* Plain colored text, not a pill: the pill's horizontal padding pushed the
+   text right of its "Live status" label, reading as misalignment on the dark
+   card where the pill background is nearly invisible. */
 .status {
-  font-size: 0.78rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: rgba(10, 17, 40, 0.6);
+  font-size: 0.95rem;
+  font-weight: 700;
   color: var(--muted-2);
 }
 
