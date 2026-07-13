@@ -20,17 +20,23 @@ and streams that probability live as time passes and confirmations accumulate.
 - Look up a transaction by id and see its inputs, outputs, and estimated fee.
 - Watch a **live double-spend probability** update over a WebSocket as the
   transaction ages and confirms.
-- Explore modeled probability-decay graphs (first 5 hours, and full history),
+- One-click loaders: a live mempool (unconfirmed) transaction, a just-confirmed
+  one, or a settled one (6 confirmations, the conventional "safe" depth).
+- Explore probability-decay graphs built from the transaction's real
+  confirmation timeline (first hour, first 5 hours, and full history),
   downsampled with the LTTB algorithm so large series stay smooth.
-- Adjust the attacker's assumed hash-power share (α) and see the risk recompute.
+- Adjust the attacker's assumed hash-power share (α) and see the risk
+  recompute, with live presets like the current largest mining pool's share.
 
 ## The model
 
 Given how long a transaction has been visible (`t`), its confirmation count
-(`n`), and an attacker's share of network hash power (`α`, where `0 < α < 0.5`),
-the app computes the probability the attacker could still build a longer chain
-and reverse it. The calculation runs in log-space for numerical stability when
-the probability becomes astronomically small. See
+(`n`), and an attacker's share of network hash power (`α`), the app computes
+the probability the attacker could still build a longer chain and reverse it.
+The catch-up formula applies while the attacker is a minority (`0 < α < 0.5`);
+at `α ≥ 0.5` a majority attacker always out-mines the network eventually, so
+the risk is reported as a certain 100%. The calculation runs in log-space for
+numerical stability when the probability becomes astronomically small. See
 [`backend/app/probability/equations.py`](backend/app/probability/equations.py).
 
 A subtle, correct property the tests pin down: with confirmations held fixed,
@@ -127,4 +133,6 @@ arbitrary transactions by id).
 - **Backend** → any container host (Fly.io, Railway, Render). Set
   `DSCAP_CORS_ORIGINS` to the deployed frontend origin.
 
-Keep `DSCAP_DATA_SOURCE=demo` for a public demo unless you are hosting a node.
+The live site runs `DSCAP_DATA_SOURCE=esplora`: real mainnet data through the
+free mempool.space API, no node required. Use `demo` for a deployment with zero
+external dependencies (e.g. an offline or CI environment).
