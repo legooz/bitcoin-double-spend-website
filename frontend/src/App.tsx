@@ -193,7 +193,7 @@ export default function App() {
     const txid = params.get('txid');
     if (txid && /^[0-9a-fA-F]{64}$/.test(txid)) {
       const parsed = parseFloat(params.get('alpha') ?? '');
-      const alpha = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0.01), 0.49) : committedAlpha;
+      const alpha = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0.01), 1) : committedAlpha;
       setCommittedAlpha(alpha);
       setPendingAlpha(alpha);
       load(txid.toLowerCase(), alpha);
@@ -212,7 +212,7 @@ export default function App() {
     // Round to 2 decimals so it matches the slider steps and the alpha written
     // to the URL (toFixed(2)) — otherwise a preset like the largest-pool share
     // (e.g. 0.2469) wouldn't match on refresh and the live stream wouldn't restore.
-    const clamped = Math.round(Math.min(Math.max(value, 0.01), 0.49) * 100) / 100;
+    const clamped = Math.round(Math.min(Math.max(value, 0.01), 1) * 100) / 100;
     setPendingAlpha(clamped);
     setCommittedAlpha(clamped);
     if (activeTxid) load(activeTxid, clamped);

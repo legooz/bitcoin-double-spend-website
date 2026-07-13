@@ -536,6 +536,33 @@ h1, h2, h3, h4 {
   accent-color: var(--accent);
 }
 
+/* Marker showing where 50% (guaranteed double-spend) sits on the α slider. */
+.alpha-slider-wrap {
+  position: relative;
+  padding-bottom: 1.2rem;
+}
+
+.alpha-tick {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 18px;
+  background: var(--red);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.alpha-tick-label {
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--red);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .alpha-value {
   min-width: 52px;
   text-align: right;

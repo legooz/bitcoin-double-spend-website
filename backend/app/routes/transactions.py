@@ -29,8 +29,8 @@ def _validate_txid(txid: str) -> str:
 
 
 def _clamp_alpha(alpha: float) -> float:
-    # The probability model is only defined for 0 < alpha < 0.5.
-    return min(max(alpha, 0.01), 0.49)
+    # alpha in (0, 0.5) uses the catch-up formula; >= 0.5 is a certain (100%) double-spend.
+    return min(max(alpha, 0.01), 1.0)
 
 
 @router.get("/samples", response_model=list[SampleTransaction])
@@ -66,7 +66,7 @@ async def confirmed_sample(request: Request) -> dict[str, str]:
 async def get_transaction(
     txid: str,
     request: Request,
-    alpha: float = Query(0.15, ge=0.0, le=0.5),
+    alpha: float = Query(0.15, ge=0.0, le=1.0),
 ) -> TransactionSummary:
     txid = _validate_txid(txid)
     summary = await _source(request).get_transaction(txid, _clamp_alpha(alpha))
@@ -79,7 +79,7 @@ async def get_transaction(
 async def get_history(
     txid: str,
     request: Request,
-    alpha: float = Query(0.15, ge=0.0, le=0.5),
+    alpha: float = Query(0.15, ge=0.0, le=1.0),
     lttb_threshold: int | None = Query(None, gt=0),
 ) -> HistoryResponse:
     txid = _validate_txid(txid)

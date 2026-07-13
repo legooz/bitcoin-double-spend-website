@@ -58,9 +58,21 @@ def test_wrapper_matches_formula_below_cap():
     assert double_spend_probability(600, 3, 0.3) == p_double_spend_if_accepted_now(600, 3, 0.3)
 
 
+def test_majority_alpha_is_certain():
+    from app.probability.equations import double_spend_probability
+
+    # >= 50% hash power: double-spend succeeds with probability 1...
+    assert p_double_spend_if_accepted_now(600, 5, 0.6) == 1.0
+    assert p_double_spend_if_accepted_now(600, 1, 1.0) == 1.0
+    # ...even for a deeply-confirmed transaction (past the negligible cap).
+    assert double_spend_probability(600, 500, 0.51) == 1.0
+
+
 def test_rejects_alpha_out_of_domain():
     with pytest.raises(ValueError):
-        p_double_spend_if_accepted_now(600, 1, 0.6)
+        p_double_spend_if_accepted_now(600, 1, 0.0)
+    with pytest.raises(ValueError):
+        p_double_spend_if_accepted_now(600, 1, 1.5)
 
 
 def test_rejects_negative_inputs():
