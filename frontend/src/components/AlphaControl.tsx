@@ -53,7 +53,7 @@ export function AlphaControl({ pendingAlpha, onChange, onCommit, onApply, larges
             onClick={() => onApply(largestPool.share)}
             title="A mining pool is many independent miners, so this is an upper bound for a single colluding attacker."
           >
-            Largest pool: {largestPool.name} ≈ {Math.round(largestPool.share * 100)}%
+            Current largest pool: {largestPool.name} ≈ {Math.round(largestPool.share * 100)}%
           </button>
         )}
         <button
@@ -63,8 +63,12 @@ export function AlphaControl({ pendingAlpha, onChange, onCommit, onApply, larges
         >
           GHash.io ≈ 51% (2014)
         </button>
-        <button className="preset-btn" onClick={() => onApply(0.49)}>
-          Majority attack (49%)
+        <button
+          className="preset-btn"
+          onClick={() => onApply(0.51)}
+          title="Any share of 50% or more can always out-mine the honest network, so a double-spend is certain."
+        >
+          Majority attack (51%)
         </button>
       </div>
     </div>

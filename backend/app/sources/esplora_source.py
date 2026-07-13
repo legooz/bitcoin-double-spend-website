@@ -124,8 +124,10 @@ class EsploraSource:
             self._pool_cache = (result, now)
             return result
         except Exception:  # noqa: BLE001
-            # Never hide the preset; fall back to a representative value.
-            return self._pool_cache[0] if self._pool_cache else {"name": "the largest pool", "share": 0.25}
+            # Never hide the preset; fall back to a representative value. The
+            # name renders after "Current largest pool:" in the UI, so it must
+            # read naturally there.
+            return self._pool_cache[0] if self._pool_cache else {"name": "unknown", "share": 0.25}
 
     async def sample_confirmed_txid(self) -> str | None:
         # First non-coinbase transaction in the tip block (recently confirmed).
@@ -210,6 +212,21 @@ class EsploraSource:
             return
 
         blocktime = summary.blocktime
+        if summary.confirmations > 0:
+            # For a confirmed tx, get_transaction() anchors elapsed time to the
+            # miner-set block timestamp, which is routinely minutes off from
+            # real time. A stream that starts (or restarts after a reconnect)
+            # post-confirmation would then use a different clock base than the
+            # pre-confirmation stream did, tearing a gap or a freeze into the
+            # live graph. Prefer the mempool first-seen time, which never
+            # changes; keep the block timestamp only when the provider doesn't
+            # remember the first-seen time.
+            try:
+                data = await self._get_json(f"/v1/transaction-times?txId[]={txid}")
+                if data and data[0]:
+                    blocktime = int(data[0])
+            except Exception:  # noqa: BLE001
+                pass
         confirmations = summary.confirmations
         ticks = 0
 
@@ -228,7 +245,14 @@ class EsploraSource:
             # Re-check status about every 10s (20 ticks * 0.5s).
             ticks += 1
             if ticks % 20 == 0:
-                refreshed = await self.get_transaction(txid, alpha)
+                try:
+                    refreshed = await self.get_transaction(txid, alpha)
+                except Exception:  # noqa: BLE001
+                    # Transient upstream failure — likeliest right when a new
+                    # block lands and the API is busiest. Keep streaming with
+                    # the current count instead of letting the error kill the
+                    # WebSocket; the next refresh catches up.
+                    refreshed = None
                 if refreshed is not None:
                     # Update the confirmation count but KEEP the original broadcast
                     # (first-seen) clock. The model's elapsed time is measured from

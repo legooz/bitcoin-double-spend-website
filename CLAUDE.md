@@ -73,7 +73,7 @@ Frontend: `VITE_API_BASE_URL` (baked in at build time). `localhost` and `127.0.0
 
 ## Conventions and gotchas
 
-- `alpha` (attacker hash-power share) threads through every layer and is clamped to `(0.01, 0.49)` in the routes; the equation is undefined outside `(0, 0.5)`.
+- `alpha` (attacker hash-power share) threads through every layer and is clamped to `[0.01, 1.0]` in the routes. The catch-up equation is only defined on `(0, 0.5)`; at `alpha >= 0.5` the code short-circuits to a certain (probability 1.0) double-spend, which is the exact analytical limit.
 - State is in-memory and per-connection; there is no database.
 - `esplora` tests are intentionally **excluded from CI** (they depend on an external service). The CI suite (`.github/workflows/ci.yml`) covers the probability math, demo-mode API, and the frontend build. Verify `esplora` manually against the live API.
 - Unconfirmed transactions are ephemeral, so the mempool sample loader fetches a fresh one each time rather than pinning one.
