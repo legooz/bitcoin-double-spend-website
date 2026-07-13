@@ -427,6 +427,13 @@ h1, h2, h3, h4 {
   padding: 0.9rem;
 }
 
+/* Reserve two lines for the example-card subtitles so a one-line subtitle
+   (e.g. "Stuck in the mempool") doesn't push its chart higher than the
+   two-line ones next to it — keeps the charts in each row aligned. */
+.example-graph .graph-card-subtitle {
+  min-height: 3.4em;
+}
+
 @media (max-width: 760px) {
   .example-graphs {
     grid-template-columns: 1fr;
