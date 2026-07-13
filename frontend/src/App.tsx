@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ApiError,
   fetchConfirmedSample,
+  fetchSettledSample,
   fetchHealth,
   fetchHistory,
   fetchLargestPool,
@@ -242,6 +243,18 @@ export default function App() {
     }
   };
 
+  const loadSettledSample = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { txid } = await fetchSettledSample();
+      await load(txid, committedAlpha);
+    } catch {
+      setError('Could not fetch a settled transaction right now.');
+      setLoading(false);
+    }
+  };
+
   const resetToHome = () => {
     setSummary(null);
     setActiveTxid(null);
@@ -317,6 +330,14 @@ export default function App() {
           </button>
           <button className="sample-chip" onClick={loadConfirmedSample} disabled={loading}>
             Load a recent confirmed transaction
+          </button>
+          <button
+            className="sample-chip"
+            onClick={loadSettledSample}
+            disabled={loading}
+            title="After 6 confirmations a transaction is conventionally considered settled: the risk of reversal is negligible for any realistic attacker."
+          >
+            Load a settled transaction (6 confirmations)
           </button>
           {[...SCENARIO_TRANSACTIONS, ...FAMOUS_TRANSACTIONS].map((tx) => (
             <button key={tx.txid} className="sample-chip" onClick={() => handleSearch(tx.txid)}>

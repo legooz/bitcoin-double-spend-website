@@ -54,6 +54,10 @@ export function fetchConfirmedSample(): Promise<{ txid: string }> {
   return getJson<{ txid: string }>('/confirmed/sample');
 }
 
+export function fetchSettledSample(): Promise<{ txid: string }> {
+  return getJson<{ txid: string }>('/settled/sample');
+}
+
 export interface LargestPool {
   name: string;
   share: number;

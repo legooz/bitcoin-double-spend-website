@@ -69,7 +69,7 @@ Frontend: `VITE_API_BASE_URL` (baked in at build time). `localhost` and `127.0.0
 
 ## API surface
 
-`backend/app/routes/transactions.py`: `GET /health`, `GET /samples`, `GET /mempool/sample` (esplora only), `GET /transaction/{txid}`, `GET /transaction/{txid}/history`, and the WebSocket `GET /transaction/{txid}/ws?alpha=`. TypeScript mirrors of the response models live in `frontend/src/types.ts` and must stay in sync with `backend/app/models.py`.
+`backend/app/routes/transactions.py`: `GET /health`, `GET /samples`, `GET /mempool/sample`, `GET /confirmed/sample`, `GET /settled/sample` (the sample endpoints are esplora only), `GET /mining/largest-pool`, `GET /transaction/{txid}`, `GET /transaction/{txid}/history`, and the WebSocket `GET /transaction/{txid}/ws?alpha=`. TypeScript mirrors of the response models live in `frontend/src/types.ts` and must stay in sync with `backend/app/models.py`.
 
 ## Conventions and gotchas
 

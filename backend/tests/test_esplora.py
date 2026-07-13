@@ -69,6 +69,18 @@ def test_esplora_parses_unconfirmed_transaction():
 
 
 @respx.mock
+def test_settled_sample_comes_from_six_blocks_deep():
+    """The settled sample must come from the block 5 below the tip (6 confs)
+    and skip the coinbase transaction."""
+    respx.get(f"{BASE}/blocks/tip/height").respond(text="800005")
+    respx.get(f"{BASE}/block-height/800000").respond(text="hash800000")
+    respx.get(f"{BASE}/block/hash800000/txids").respond(json=["coinbase_txid", "d" * 64, "e" * 64])
+
+    txid = asyncio.run(_source().sample_settled_txid())
+    assert txid == "d" * 64
+
+
+@respx.mock
 def test_stream_anchors_confirmed_tx_to_first_seen_time():
     """A stream opened after confirmation must measure elapsed time from the
     mempool first-seen time, not the miner-set block timestamp. Otherwise a

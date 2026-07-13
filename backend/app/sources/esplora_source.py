@@ -46,6 +46,9 @@ _HISTORY_MAX_BLOCKS = 48
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
 _ONE_HOUR_SECONDS = 60 * 60
 _POOL_TTL_SECONDS = 6 * 3600  # mining-pool shares drift slowly; cache for hours
+# Depth at which a transaction is conventionally considered settled (Nakamoto's
+# paper analyzes attacker catch-up odds at z=6 blocks).
+_SETTLED_CONFIRMATIONS = 6
 _FIRST_5H_STEP_SECONDS = 5  # fine resolution through the decay region
 # Stop extending the Full History once risk is this close to zero (~1e-10). This
 # is small enough to count as "approximately 0" while still letting the decay
@@ -135,6 +138,20 @@ class EsploraSource:
         try:
             tip = await self._get_text("/blocks/tip/hash")
             txids = await self._get_json(f"/block/{tip}/txids")
+            if txids and len(txids) > 1:
+                return txids[1]  # index 0 is the coinbase
+            return txids[0] if txids else None
+        except Exception:  # noqa: BLE001
+            return None
+
+    async def sample_settled_txid(self) -> str | None:
+        # First non-coinbase transaction in the block _SETTLED_CONFIRMATIONS - 1
+        # below the tip, so it has exactly the conventional "safe" depth of 6
+        # confirmations (the tip block itself counts as the first).
+        try:
+            tip_height = await self._tip_height()
+            block_hash = await self._get_text(f"/block-height/{tip_height - (_SETTLED_CONFIRMATIONS - 1)}")
+            txids = await self._get_json(f"/block/{block_hash}/txids")
             if txids and len(txids) > 1:
                 return txids[1]  # index 0 is the coinbase
             return txids[0] if txids else None
