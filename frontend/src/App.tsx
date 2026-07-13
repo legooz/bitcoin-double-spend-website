@@ -318,7 +318,7 @@ export default function App() {
         </div>
       )}
 
-      {dataSource === 'esplora' && (
+      {(dataSource === 'esplora' || !backendReady) && (
         <div className="mempool-cta">
           <button className="hero-search-button" onClick={loadMempoolSample} disabled={loading}>
             Load a live mempool transaction
@@ -410,14 +410,14 @@ export default function App() {
                 <>
                   <div className="graph-card">
                     <div className="graph-card-title">First 5 Hours</div>
-                    <div className="graph-card-subtitle">Probability during the first five hours, from real block times.</div>
+                    <div className="graph-card-subtitle">First five hours, calculated from the first confirmation.</div>
                     <div className="graph-surface">
                       <ProbabilityChart points={history.first_5h.points} color="#3b82f6" height={320} />
                     </div>
                   </div>
                   <div className="graph-card">
                     <div className="graph-card-title">Full History</div>
-                    <div className="graph-card-subtitle">Decay across the transaction's life, by date.</div>
+                    <div className="graph-card-subtitle">Full decay by date, calculated from the first confirmation.</div>
                     <div className="graph-surface">
                       <ProbabilityChart
                         points={history.full_graph.points}
