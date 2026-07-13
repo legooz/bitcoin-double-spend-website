@@ -47,6 +47,7 @@ export interface HistoryResponse {
   alpha: number;
   full_graph: HistoryView;
   first_5h: HistoryView;
+  first_1h: HistoryView;
 }
 
 export interface SampleTransaction {

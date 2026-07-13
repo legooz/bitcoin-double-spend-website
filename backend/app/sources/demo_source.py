@@ -33,6 +33,7 @@ _FIXTURE_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "demo_transac
 _AVG_BLOCK_SECONDS = 600
 _HISTORY_CONFIRMATIONS = 40
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
+_ONE_HOUR_SECONDS = 60 * 60
 _FIRST_5H_STEP_SECONDS = 5  # fine resolution through the decay region
 _NEGLIGIBLE_PROBABILITY = 1e-6  # stop adding points once risk is this close to zero
 
@@ -147,6 +148,10 @@ class DemoSource:
             else:
                 negligible_since = None
 
+        # First hour: the same fine-grained curve cut at 60 minutes, where the
+        # risk moves fastest. Sliced (not recomputed) so the views always agree.
+        first_1h_rows = [row for row in first_5h_rows if row[0] <= _ONE_HOUR_SECONDS]
+
         return HistoryResponse(
             txid=entry["txid"],
             included_block_height=800_000,
@@ -154,6 +159,7 @@ class DemoSource:
             alpha=alpha,
             full_graph=_to_view(full_rows, lttb_threshold),
             first_5h=_to_view(first_5h_rows, lttb_threshold),
+            first_1h=_to_view(first_1h_rows, lttb_threshold),
         )
 
 
