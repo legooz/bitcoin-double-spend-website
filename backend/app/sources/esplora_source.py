@@ -46,7 +46,10 @@ _HISTORY_MAX_BLOCKS = 48
 _FIVE_HOURS_SECONDS = 5 * 60 * 60
 _POOL_TTL_SECONDS = 6 * 3600  # mining-pool shares drift slowly; cache for hours
 _FIRST_5H_STEP_SECONDS = 5  # fine resolution through the decay region
-_NEGLIGIBLE_PROBABILITY = 1e-6  # stop adding points once risk is this close to zero
+# Stop extending the Full History once risk is this close to zero (~1e-10). This
+# is small enough to count as "approximately 0" while still letting the decay
+# curve run a few confirmations further than a coarser cutoff would.
+_NEGLIGIBLE_PROBABILITY = 1e-10
 
 
 class EsploraSource:

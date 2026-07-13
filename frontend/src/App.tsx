@@ -310,19 +310,14 @@ export default function App() {
       )}
 
       {(dataSource === 'esplora' || !healthConfirmed) && (
-        <div className="mempool-cta">
-          <button className="hero-search-button" onClick={loadMempoolSample} disabled={loading}>
-            Load a live mempool transaction
-          </button>
-          <button className="hero-search-button" onClick={loadConfirmedSample} disabled={loading}>
-            Load a recent confirmed transaction
-          </button>
-        </div>
-      )}
-
-      {(dataSource === 'esplora' || !healthConfirmed) && (
         <div className="controls-extra">
           <span className="samples-label">Try one:</span>
+          <button className="sample-chip" onClick={loadMempoolSample} disabled={loading}>
+            Load a live mempool transaction
+          </button>
+          <button className="sample-chip" onClick={loadConfirmedSample} disabled={loading}>
+            Load a recent confirmed transaction
+          </button>
           {[...SCENARIO_TRANSACTIONS, ...FAMOUS_TRANSACTIONS].map((tx) => (
             <button key={tx.txid} className="sample-chip" onClick={() => handleSearch(tx.txid)}>
               {tx.label}
