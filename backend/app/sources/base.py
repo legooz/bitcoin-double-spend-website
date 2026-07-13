@@ -49,3 +49,7 @@ class BitcoinSource(Protocol):
     async def sample_confirmed_txid(self) -> str | None:
         """Return a recently-confirmed txid to showcase, or None if unsupported."""
         ...
+
+    async def sample_settled_txid(self) -> str | None:
+        """Return a settled txid (6+ confirmations, conventionally safe), or None."""
+        ...

@@ -59,6 +59,9 @@ class RpcSource:
     async def sample_confirmed_txid(self) -> str | None:
         return None
 
+    async def sample_settled_txid(self) -> str | None:
+        return None
+
     async def get_transaction(self, txid: str, alpha: float) -> TransactionSummary | None:
         return await asyncio.to_thread(self._get_transaction_sync, txid, alpha)
 

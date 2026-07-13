@@ -66,6 +66,9 @@ class DemoSource:
     async def sample_confirmed_txid(self) -> str | None:
         return None  # demo uses static samples
 
+    async def sample_settled_txid(self) -> str | None:
+        return None  # demo uses static samples
+
     async def get_transaction(self, txid: str, alpha: float) -> TransactionSummary | None:
         entry = self._find(txid)
         if entry is None:
