@@ -311,10 +311,12 @@ h1, h2, h3, h4 {
   min-height: 1.75rem;
 }
 
-/* Values must not stretch to the column width (a stretched status pill made
-   its text look indented relative to the label above it). */
+/* Center each stat column: the value sits centered directly under its label,
+   and values must not stretch to the column width (a stretched status pill
+   once made its text look indented relative to the label above it). */
 .prob-stats > div {
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
 }
 
 /* --- Top-bar support / credit --- */
