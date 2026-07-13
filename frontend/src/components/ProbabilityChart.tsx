@@ -3,6 +3,7 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ReferenceArea,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -49,6 +50,12 @@ export function ProbabilityChart({
   // without re-attaching the listener on every zoom step.
   const zoomRef = useRef<[number, number] | null>(null);
   const [zoom, setZoom] = useState<[number, number] | null>(null);
+  // Click-drag selection (elapsed_seconds). Refs drive the logic (robust to the
+  // synchronous run of down/move/up), state drives the shaded ReferenceArea.
+  const [dragStart, setDragStart] = useState<number | null>(null);
+  const [dragEnd, setDragEnd] = useState<number | null>(null);
+  const dragStartRef = useRef<number | null>(null);
+  const dragEndRef = useRef<number | null>(null);
 
   // Full data range along the X axis. Guarded so hooks stay unconditional even
   // when there are no points (the early-return below handles rendering).
@@ -143,8 +150,24 @@ export function ProbabilityChart({
     setZoom(null);
   };
 
+  // Commit a click-drag selection to a zoom window (if it spans enough), then
+  // clear the drag. Used on mouse-up and when the cursor leaves mid-drag.
+  const commitDrag = () => {
+    const s = dragStartRef.current;
+    const e = dragEndRef.current;
+    dragStartRef.current = null;
+    dragEndRef.current = null;
+    setDragStart(null);
+    setDragEnd(null);
+    if (s != null && e != null && Math.abs(e - s) >= minSpan) {
+      const next: [number, number] = [Math.min(s, e), Math.max(s, e)];
+      zoomRef.current = next;
+      setZoom(next);
+    }
+  };
+
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', userSelect: 'none' }}>
       {isZoomed && (
         <button
           type="button"
@@ -172,16 +195,38 @@ export function ProbabilityChart({
         <LineChart
           data={points}
           margin={{ top: 8, right: 16, bottom: 4, left: 4 }}
-          onMouseMove={
+          onMouseDown={
             zoomable
               ? (state) => {
-                  const label = state.activeLabel;
-                  focusRef.current = typeof label === 'number' ? label : null;
+                  const label = typeof state?.activeLabel === 'number' ? state.activeLabel : focusRef.current;
+                  if (typeof label === 'number') {
+                    dragStartRef.current = label;
+                    dragEndRef.current = null;
+                    setDragStart(label);
+                    setDragEnd(null);
+                  }
                 }
               : undefined
           }
+          onMouseMove={
+            zoomable
+              ? (state) => {
+                  const label = typeof state?.activeLabel === 'number' ? state.activeLabel : focusRef.current;
+                  if (typeof label === 'number') focusRef.current = label;
+                  if (dragStartRef.current != null && typeof label === 'number') {
+                    dragEndRef.current = label;
+                    setDragEnd(label);
+                  }
+                }
+              : undefined
+          }
+          onMouseUp={zoomable ? commitDrag : undefined}
+          onMouseLeave={zoomable ? commitDrag : undefined}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+          {dragStart != null && dragEnd != null && (
+            <ReferenceArea x1={dragStart} x2={dragEnd} strokeOpacity={0.3} fill="#3b82f6" fillOpacity={0.12} />
+          )}
           <XAxis
             dataKey="elapsed_seconds"
             type="number"
