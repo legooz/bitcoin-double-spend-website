@@ -482,8 +482,12 @@ export default function App() {
           .
         </p>
         <p className="footer-credit">
-          This website was recreated by Lars Goozen, inspired by his capstone project with Caden Kane,
-          Derek Hodgkins, and Zong Xiong, and advised by Sebastian Neumayer.
+          This website was recreated by{' '}
+          <a href="https://www.linkedin.com/in/larsgoozen" target="_blank" rel="noopener noreferrer">
+            Lars Goozen
+          </a>
+          , inspired by his capstone project with Caden Kane, Derek Hodgkins, and Zong Xiong, and
+          advised by Sebastian Neumayer.
         </p>
         <p>
           {healthConfirmed && dataSource === 'demo'
