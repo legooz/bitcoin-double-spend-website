@@ -23,9 +23,9 @@ export function SupportLinks() {
         type="button"
         className="support-btn support-btc"
         onClick={copyAddress}
-        title={BITCOIN_ADDRESS ? 'Copy my Bitcoin address (on-chain / mainnet only)' : 'Address coming soon'}
+        title="Enjoying the site? Tips keep it running. Copies my Bitcoin address (on-chain / mainnet only)."
       >
-        ₿ {copied ? 'Address copied' : 'Send Bitcoin'}
+        ₿ {copied ? 'Address copied, thank you!' : 'Support this site'}
       </button>
     </div>
   );
