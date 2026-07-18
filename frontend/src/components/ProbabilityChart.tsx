@@ -4,7 +4,6 @@ import {
   Line,
   LineChart,
   ReferenceArea,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -32,11 +31,6 @@ interface Props {
   /** Axis titles. Defaults to `showTooltip` so the mini example charts stay uncluttered. */
   axisLabels?: boolean;
 }
-
-// Above this many confirmation arrivals in view, the dashed markers would be
-// denser than the curve itself, so they are hidden (the tooltip still shows
-// the count per point).
-const MAX_CONF_MARKS = 12;
 
 export function ProbabilityChart({
   points,
@@ -154,21 +148,6 @@ export function ProbabilityChart({
   }
 
   const isZoomed = zoomable && zoom !== null;
-
-  // X positions where the confirmation count increased: each one marks the
-  // block arrival that makes the curve jump down. Only drawable when the data
-  // carries per-point confirmation counts.
-  const confMarks: { x: number; confs: number }[] = [];
-  for (let i = 1; i < points.length; i++) {
-    const prev = points[i - 1].confirmations;
-    const cur = points[i].confirmations;
-    if (prev != null && cur != null && cur > prev) {
-      confMarks.push({ x: points[i].elapsed_seconds, confs: cur });
-    }
-  }
-  const [viewLo, viewHi] = zoom ?? [fullMin, fullMax];
-  const visibleMarks = confMarks.filter((m) => m.x >= viewLo && m.x <= viewHi);
-  const showMarks = visibleMarks.length > 0 && visibleMarks.length <= MAX_CONF_MARKS;
 
   const renderTooltip = ({ active, payload, label }: TooltipContentProps) => {
     if (!active || !payload || payload.length === 0) return null;
@@ -320,21 +299,6 @@ export function ProbabilityChart({
                 : undefined
             }
           />
-          {showMarks &&
-            visibleMarks.map((m, idx) => (
-              <ReferenceLine
-                key={m.x}
-                x={m.x}
-                stroke="#94a3b8"
-                strokeDasharray="4 3"
-                label={{
-                  value: idx === 0 ? `${m.confs} conf` : String(m.confs),
-                  position: 'insideTop',
-                  fill: '#64748b',
-                  fontSize: 10,
-                }}
-              />
-            ))}
           {showTooltip && <Tooltip content={renderTooltip} />}
           <Line
             type="monotone"
