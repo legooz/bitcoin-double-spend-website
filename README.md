@@ -4,7 +4,7 @@ A real-time web app that estimates the probability a Bitcoin transaction could
 still be **double-spent** (reversed by an attacker mining a competing chain),
 and streams that probability live as time passes and confirmations accumulate.
 
-> **Live demo:** https://bitcoin-double-spend-website.vercel.app
+> **Live demo:** https://www.bitcoindoublespend.com (also at https://bitcoin-double-spend-website.vercel.app)
 >
 > The probability model is real applied math. In demo mode, sample transactions
 > are simulated so the app runs anywhere with no Bitcoin node; in `esplora` mode

@@ -4,11 +4,49 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/bitcoin-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Double Spend Analyzer</title>
+    <title>Bitcoin Double-Spend Probability Calculator | Live Risk Analyzer</title>
     <meta
       name="description"
-      content="Estimate the probability that a Bitcoin transaction could be double-spent, in real time."
+      content="Free tool that estimates the probability a Bitcoin transaction could be double-spent, streaming live as confirmations arrive. Real mainnet data, real math from the Nakamoto and Neumayer models."
     />
+    <link rel="canonical" href="https://www.bitcoindoublespend.com/" />
+
+    <!-- Social preview (Open Graph, used by LinkedIn, Discord, Slack, Facebook) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Double Spend Analyzer" />
+    <meta property="og:url" content="https://www.bitcoindoublespend.com/" />
+    <meta property="og:title" content="Bitcoin Double-Spend Probability Calculator" />
+    <meta
+      property="og:description"
+      content="Estimate the probability a Bitcoin transaction could be double-spent, live as it confirms. Free, real mainnet data."
+    />
+    <meta property="og:image" content="https://www.bitcoindoublespend.com/og-image.png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="672" />
+
+    <!-- Social preview (X/Twitter) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bitcoin Double-Spend Probability Calculator" />
+    <meta
+      name="twitter:description"
+      content="Estimate the probability a Bitcoin transaction could be double-spent, live as it confirms. Free, real mainnet data."
+    />
+    <meta name="twitter:image" content="https://www.bitcoindoublespend.com/og-image.png" />
+
+    <!-- Structured data for search engines -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Double Spend Analyzer",
+        "url": "https://www.bitcoindoublespend.com/",
+        "description": "Estimates the probability a Bitcoin transaction could be double-spent, streaming the risk live as the transaction ages and confirms.",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "creator": { "@type": "Person", "name": "Lars Goozen" }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
