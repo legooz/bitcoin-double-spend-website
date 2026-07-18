@@ -11,7 +11,7 @@ import asyncio
 import json
 import time
 from pathlib import Path
-from typing import AsyncIterator
+from typing import AsyncIterator, Callable
 
 from app.config import Settings
 from app.models import (
@@ -125,6 +125,11 @@ class DemoSource:
 
         included_block_time = int(time.time()) - _HISTORY_CONFIRMATIONS * _AVG_BLOCK_SECONDS
 
+        def confs_at(elapsed_seconds: int) -> int:
+            # The simulated chain finds one block every _AVG_BLOCK_SECONDS,
+            # starting with the inclusion block at t=0.
+            return min(1 + elapsed_seconds // _AVG_BLOCK_SECONDS, _HISTORY_CONFIRMATIONS)
+
         # One point per (simulated) block, stopping once risk is negligible.
         full_rows: list[tuple[float, float]] = []
         for confirmations in range(1, _HISTORY_CONFIRMATIONS + 1):
@@ -160,15 +165,28 @@ class DemoSource:
             included_block_height=800_000,
             included_block_time=included_block_time,
             alpha=alpha,
-            full_graph=_to_view(full_rows, lttb_threshold),
-            first_5h=_to_view(first_5h_rows, lttb_threshold),
-            first_1h=_to_view(first_1h_rows, lttb_threshold),
+            full_graph=_to_view(full_rows, lttb_threshold, confs_at),
+            first_5h=_to_view(first_5h_rows, lttb_threshold, confs_at),
+            first_1h=_to_view(first_1h_rows, lttb_threshold, confs_at),
         )
 
 
-def _to_view(rows: list[tuple[float, float]], lttb_threshold: int | None) -> HistoryView:
+def _to_view(
+    rows: list[tuple[float, float]],
+    lttb_threshold: int | None,
+    confs_at: Callable[[int], int] | None = None,
+) -> HistoryView:
     threshold = choose_threshold(len(rows), lttb_threshold)
     sampled = downsample(rows, threshold)
+    # Confirmations are stamped after downsampling so LTTB keeps operating on
+    # plain (x, y) rows.
     return HistoryView(
-        points=[ProbabilityPoint(elapsed_seconds=x, probability=y) for x, y in sampled]
+        points=[
+            ProbabilityPoint(
+                elapsed_seconds=x,
+                probability=y,
+                confirmations=confs_at(int(x)) if confs_at is not None else None,
+            )
+            for x, y in sampled
+        ]
     )
