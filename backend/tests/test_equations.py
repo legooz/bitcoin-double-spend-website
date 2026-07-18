@@ -7,7 +7,10 @@ import math
 
 import pytest
 
-from app.probability.equations import p_double_spend_if_accepted_now
+from app.probability.equations import (
+    nakamoto_double_spend_probability,
+    p_double_spend_if_accepted_now,
+)
 
 
 def test_probability_is_a_valid_probability():
@@ -78,3 +81,22 @@ def test_rejects_alpha_out_of_domain():
 def test_rejects_negative_inputs():
     with pytest.raises(ValueError):
         p_double_spend_if_accepted_now(-1, 1, 0.2)
+
+
+def test_nakamoto_matches_whitepaper_table():
+    # Values published in the Bitcoin whitepaper, section 11 ("q=0.1" table).
+    assert nakamoto_double_spend_probability(0, 0.1) == 1.0
+    assert math.isclose(nakamoto_double_spend_probability(1, 0.1), 0.2045873, abs_tol=1e-6)
+    assert math.isclose(nakamoto_double_spend_probability(5, 0.1), 0.0009137, abs_tol=1e-6)
+    assert math.isclose(nakamoto_double_spend_probability(10, 0.1), 0.0000012, abs_tol=1e-6)
+    # And the q=0.3 table.
+    assert math.isclose(nakamoto_double_spend_probability(5, 0.3), 0.1773523, abs_tol=1e-6)
+    assert math.isclose(nakamoto_double_spend_probability(10, 0.3), 0.0416605, abs_tol=1e-6)
+
+
+def test_nakamoto_is_time_blind_and_majority_certain():
+    assert nakamoto_double_spend_probability(3, 0.6) == 1.0
+    with pytest.raises(ValueError):
+        nakamoto_double_spend_probability(-1, 0.2)
+    with pytest.raises(ValueError):
+        nakamoto_double_spend_probability(1, 0.0)

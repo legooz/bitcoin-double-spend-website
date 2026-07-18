@@ -1,4 +1,6 @@
+import { COMPARISON_ALPHA } from '../comparisonGraph';
 import { EXAMPLE_ALPHA, exampleFast, exampleMempool, exampleNormal, exampleSlow } from '../exampleGraphs';
+import { ComparisonChart } from './ComparisonChart';
 import { Equation } from './Equation';
 import { ProbabilityChart } from './ProbabilityChart';
 
@@ -58,6 +60,23 @@ export function Explainer() {
         structure, and Neumayer explains why time and confirmations together give a truer picture of
         double-spend risk.
       </p>
+      <p>
+        The graph below puts the two models side by side on the same slowly-confirmed transaction
+        (α = {COMPARISON_ALPHA}, real block gaps from June 2009: a second block after ~116 minutes,
+        a third after ~151 minutes, then nothing). Judged by confirmations alone, the risk is a flat
+        staircase that only ever steps down. Accounting for elapsed time reveals the risk climbing
+        whenever blocks are slow to arrive, rising far above what the confirmation count alone
+        suggests.
+      </p>
+      <div className="example-graph">
+        <div className="graph-card-title">Confirmations alone vs confirmations + time</div>
+        <div className="graph-card-subtitle">
+          Same transaction, same attacker. Only the time-aware model sees the risk of a slow chain.
+        </div>
+        <div className="graph-surface">
+          <ComparisonChart height={320} />
+        </div>
+      </div>
 
       <h2>The double-spend probability model</h2>
       <p>The equation below estimates the probability that a transaction could be double spent, where:</p>
