@@ -44,6 +44,9 @@ class ProbabilityUpdate(BaseModel):
 class ProbabilityPoint(BaseModel):
     elapsed_seconds: float
     probability: float
+    # Confirmation count at this instant, so the frontend can show why the
+    # curve jumps down. None when the source cannot supply it.
+    confirmations: int | None = None
 
 
 class HistoryView(BaseModel):

@@ -395,7 +395,10 @@ export default function App() {
             <div className="graph-grid">
               <div className="graph-card graph-card-wide">
                 <div className="graph-card-title">Live Probability</div>
-                <div className="graph-card-subtitle">Incoming websocket updates over elapsed time.</div>
+                <div className="graph-card-subtitle">
+                  Incoming websocket updates over elapsed time. Dashed lines mark arriving
+                  confirmations.
+                </div>
                 <div className="graph-surface">
                   <div className={isSettled ? 'graph-dim' : undefined}>
                     <ProbabilityChart points={points} color="#e89a3d" height={320} emptyMessage={liveEmptyMessage} />

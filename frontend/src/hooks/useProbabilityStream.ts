@@ -134,7 +134,14 @@ export function useProbabilityStream(txid: string | null, alpha: number, enabled
         // Only append when the clock advanced, to keep the chart monotonic in x.
         if (update.elapsed_time > lastElapsed.current) {
           lastElapsed.current = update.elapsed_time;
-          setPoints((prev) => [...prev, { elapsed_seconds: update.elapsed_time, probability: update.probability }]);
+          setPoints((prev) => [
+            ...prev,
+            {
+              elapsed_seconds: update.elapsed_time,
+              probability: update.probability,
+              confirmations: update.confirmations,
+            },
+          ]);
         }
       };
       ws.onclose = () => {

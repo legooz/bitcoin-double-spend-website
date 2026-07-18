@@ -4,11 +4,13 @@ import {
   Line,
   LineChart,
   ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
+import type { TooltipContentProps } from 'recharts';
 
 import { formatAxisDate, formatElapsed, formatProbability, formatUtc } from '../format';
 import type { ProbabilityPoint } from '../types';
@@ -27,7 +29,14 @@ interface Props {
    */
   xBaseTime?: number;
   emptyMessage?: string;
+  /** Axis titles. Defaults to `showTooltip` so the mini example charts stay uncluttered. */
+  axisLabels?: boolean;
 }
+
+// Above this many confirmation arrivals in view, the dashed markers would be
+// denser than the curve itself, so they are hidden (the tooltip still shows
+// the count per point).
+const MAX_CONF_MARKS = 12;
 
 export function ProbabilityChart({
   points,
@@ -37,6 +46,7 @@ export function ProbabilityChart({
   zoomable = showTooltip,
   xBaseTime,
   emptyMessage = 'No data yet.',
+  axisLabels = showTooltip,
 }: Props) {
   const xTick = (v: number) =>
     xBaseTime != null ? formatAxisDate(xBaseTime + v) : formatElapsed(v);
@@ -145,6 +155,48 @@ export function ProbabilityChart({
 
   const isZoomed = zoomable && zoom !== null;
 
+  // X positions where the confirmation count increased: each one marks the
+  // block arrival that makes the curve jump down. Only drawable when the data
+  // carries per-point confirmation counts.
+  const confMarks: { x: number; confs: number }[] = [];
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1].confirmations;
+    const cur = points[i].confirmations;
+    if (prev != null && cur != null && cur > prev) {
+      confMarks.push({ x: points[i].elapsed_seconds, confs: cur });
+    }
+  }
+  const [viewLo, viewHi] = zoom ?? [fullMin, fullMax];
+  const visibleMarks = confMarks.filter((m) => m.x >= viewLo && m.x <= viewHi);
+  const showMarks = visibleMarks.length > 0 && visibleMarks.length <= MAX_CONF_MARKS;
+
+  const renderTooltip = ({ active, payload, label }: TooltipContentProps) => {
+    if (!active || !payload || payload.length === 0) return null;
+    const point = payload[0].payload as ProbabilityPoint;
+    return (
+      <div
+        style={{
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          color: '#0f172a',
+          padding: '8px 12px',
+          fontSize: 12,
+        }}
+      >
+        <div>{xTooltip(label as number)}</div>
+        <div>
+          Double-spend: <strong>{formatProbability(point.probability)}</strong>
+        </div>
+        {point.confirmations != null && (
+          <div>
+            Confirmations: <strong>{point.confirmations}</strong>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const resetZoom = () => {
     zoomRef.current = null;
     setZoom(null);
@@ -194,7 +246,7 @@ export function ProbabilityChart({
       <ResponsiveContainer width="100%" height={height}>
         <LineChart
           data={points}
-          margin={{ top: 8, right: 16, bottom: 4, left: 4 }}
+          margin={{ top: 8, right: 16, bottom: axisLabels ? 20 : 4, left: 4 }}
           onMouseDown={
             zoomable
               ? (state) => {
@@ -236,21 +288,54 @@ export function ProbabilityChart({
             minTickGap={xBaseTime != null ? 60 : 20}
             stroke="#64748b"
             fontSize={12}
+            label={
+              axisLabels
+                ? {
+                    value: xBaseTime != null ? 'Date' : 'Time elapsed',
+                    position: 'bottom',
+                    offset: 0,
+                    fill: '#64748b',
+                    fontSize: 12,
+                  }
+                : undefined
+            }
           />
           <YAxis
             tickFormatter={(v) => formatProbability(v as number)}
             stroke="#64748b"
             fontSize={12}
-            width={72}
+            width={axisLabels ? 88 : 72}
             domain={[0, 'auto']}
+            label={
+              axisLabels
+                ? {
+                    value: 'Double-spend probability',
+                    angle: -90,
+                    position: 'insideLeft',
+                    offset: 4,
+                    style: { textAnchor: 'middle' },
+                    fill: '#64748b',
+                    fontSize: 12,
+                  }
+                : undefined
+            }
           />
-          {showTooltip && (
-            <Tooltip
-              formatter={(v) => [formatProbability(v as number), 'Double-spend']}
-              labelFormatter={(l) => xTooltip(l as number)}
-              contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#0f172a' }}
-            />
-          )}
+          {showMarks &&
+            visibleMarks.map((m, idx) => (
+              <ReferenceLine
+                key={m.x}
+                x={m.x}
+                stroke="#94a3b8"
+                strokeDasharray="4 3"
+                label={{
+                  value: idx === 0 ? `${m.confs} conf` : String(m.confs),
+                  position: 'insideTop',
+                  fill: '#64748b',
+                  fontSize: 10,
+                }}
+              />
+            ))}
+          {showTooltip && <Tooltip content={renderTooltip} />}
           <Line
             type="monotone"
             dataKey="probability"

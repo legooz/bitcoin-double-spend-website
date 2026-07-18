@@ -18,7 +18,7 @@ from __future__ import annotations
 import asyncio
 import bisect
 import time
-from typing import AsyncIterator
+from typing import AsyncIterator, Callable
 
 import httpx
 
@@ -398,15 +398,28 @@ class EsploraSource:
             included_block_height=block_height,
             included_block_time=block_time,
             alpha=alpha,
-            full_graph=_to_view(full_rows, lttb_threshold),
-            first_5h=_to_view(first_5h_rows, lttb_threshold),
-            first_1h=_to_view(first_1h_rows, lttb_threshold),
+            full_graph=_to_view(full_rows, lttb_threshold, confs_at),
+            first_5h=_to_view(first_5h_rows, lttb_threshold, confs_at),
+            first_1h=_to_view(first_1h_rows, lttb_threshold, confs_at),
         )
 
 
-def _to_view(rows: list[tuple[float, float]], lttb_threshold: int | None) -> HistoryView:
+def _to_view(
+    rows: list[tuple[float, float]],
+    lttb_threshold: int | None,
+    confs_at: Callable[[int], int] | None = None,
+) -> HistoryView:
     threshold = choose_threshold(len(rows), lttb_threshold)
     sampled = downsample(rows, threshold)
+    # Confirmations are stamped after downsampling so LTTB keeps operating on
+    # plain (x, y) rows.
     return HistoryView(
-        points=[ProbabilityPoint(elapsed_seconds=x, probability=y) for x, y in sampled]
+        points=[
+            ProbabilityPoint(
+                elapsed_seconds=x,
+                probability=y,
+                confirmations=confs_at(int(x)) if confs_at is not None else None,
+            )
+            for x, y in sampled
+        ]
     )
