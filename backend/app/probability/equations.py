@@ -85,6 +85,33 @@ def p_double_spend_if_accepted_now(
     return max(0.0, min(1.0, p_ds))
 
 
+def nakamoto_double_spend_probability(n: int, alpha: float) -> float:
+    """Nakamoto's whitepaper catch-up probability (section 11).
+
+    Depends only on the confirmation count ``n`` and the attacker's hash-power
+    share ``alpha`` — elapsed time never enters. The attacker's progress while
+    the honest chain found ``n`` blocks is modeled as Poisson with mean
+    ``n * alpha / (1 - alpha)``; from ``k`` blocks behind the attacker still
+    catches up with probability ``(alpha / (1 - alpha)) ** k`` (gambler's ruin).
+
+    Used only for the explanatory comparison against the time-aware model; the
+    app's live probabilities come from ``p_double_spend_if_accepted_now``.
+    """
+    if not (0.0 < alpha <= 1.0):
+        raise ValueError("alpha (attacker hash-power share) must be in (0, 1].")
+    if n < 0:
+        raise ValueError("n must be non-negative.")
+    if alpha >= 0.5:
+        return 1.0
+
+    ratio = alpha / (1.0 - alpha)
+    mu = n * ratio
+    p_ds = 1.0
+    for k in range(n + 1):
+        p_ds -= math.exp(_log_poisson_pmf(k, mu)) * (1.0 - ratio ** (n - k))
+    return max(0.0, min(1.0, p_ds))
+
+
 def double_spend_probability(t_seconds: float, n: int, alpha: float) -> float:
     """Double-spend probability, short-circuiting deeply-confirmed transactions.
 
