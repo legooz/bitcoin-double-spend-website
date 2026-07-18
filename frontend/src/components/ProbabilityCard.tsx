@@ -28,7 +28,10 @@ export function ProbabilityCard({ probability, confirmations, elapsed, isCoinbas
         <p className="assumption-note">
           {isCoinbase
             ? "The chance the block is orphaned and its reward reversed, assuming an attacker controls α of the network's hash power."
-            : "Theoretical estimate that assumes an attacker controls α of the network's hash power."}
+            : "Theoretical estimate that assumes an attacker controls α of the network's hash power."}{' '}
+          The probability ticks up as time passes without a confirmation, since the attacker has
+          had more time to build their competing chain. Only the arrival of a new main-chain block
+          (a confirmation) pushes it back down.
         </p>
       </div>
 

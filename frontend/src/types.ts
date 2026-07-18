@@ -34,6 +34,9 @@ export interface ProbabilityUpdate {
 export interface ProbabilityPoint {
   elapsed_seconds: number;
   probability: number;
+  /** Confirmation count at this instant. Optional so older backends (and the
+   *  static example curves) that omit it keep working. */
+  confirmations?: number | null;
 }
 
 export interface HistoryView {
