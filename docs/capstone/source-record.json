@@ -1,0 +1,33 @@
+{
+  "course": "CSCE A470, University of Alaska Anchorage, Spring 2026",
+  "team": [
+    "Derek Hodgkins",
+    "Caden Kane",
+    "Lars Goozen",
+    "Zong Xiong"
+  ],
+  "advisor": "Sebastian Neumayer",
+  "artifacts": [
+    {
+      "original_filename": "Bitcoin Double Spend Design Document.pdf",
+      "sha256": "12ee9a4bfd42f4a5d257b1b00f23c8218e603afceed80f1ee66be01cb56fc920"
+    },
+    {
+      "original_filename": "Capstone-Poster-Editable.pptx",
+      "sha256": "2345b57d2f600c27d07d1ea289b709c67fc5058cfa4d8923e27805f0b6df1ce3"
+    },
+    {
+      "original_filename": "DesignPres.pptx",
+      "sha256": "3aebcfafc986d0a1fc667086705e732f3ae02c6e2495f5548ef3e6a003a56bba"
+    },
+    {
+      "original_filename": "FinalWriteupBTCDSW.pdf",
+      "sha256": "083624c525c37d5bf353e7cdc497acb68d6ff0f53d3dfc639ba1755ebab689be"
+    },
+    {
+      "original_filename": "PosterFinal_cmyk.pdf",
+      "sha256": "24752d62ad062b1a8c923d6a55763a4e11dcab942cf82fc098b5fea7905871d7"
+    }
+  ],
+  "published_form": "New historical summary only; original reports, slides and internal meeting/deployment details remain in the personal archive."
+}

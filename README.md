@@ -136,3 +136,7 @@ arbitrary transactions by id).
 The live site runs `DSCAP_DATA_SOURCE=esplora`: real mainnet data through the
 free mempool.space API, no node required. Use `demo` for a deployment with zero
 external dependencies (e.g. an offline or CI environment).
+
+## Capstone history and team credit
+
+The original UAA Spring 2026 capstone was a team project by Derek Hodgkins, Caden Kane, Lars Goozen, and Zong Xiong, advised by Sebastian Neumayer. See [the capstone history](docs/capstone/README.md) for the original .NET/Blazor architecture, documented planning roles, and lessons from the recovered report. The current FastAPI/React application is a later rebuild.
