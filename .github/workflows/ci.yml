@@ -18,6 +18,9 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements-dev.txt
       - run: pytest -q
+      - name: Check legacy RPC configuration
+        working-directory: .
+        run: python -m unittest discover -s dscap-py-worker/tests -v
 
   frontend:
     runs-on: ubuntu-latest
