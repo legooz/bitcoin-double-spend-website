@@ -18,8 +18,8 @@ import { formatElapsed, formatProbability } from '../format';
 // confirmations + time (Neumayer), matching the site's primary chart color.
 const NAKAMOTO_COLOR = '#3b82f6';
 const NEUMAYER_COLOR = '#e89a3d';
-const NAKAMOTO_NAME = 'Confirmations only (Nakamoto 2008)';
-const NEUMAYER_NAME = 'Confirmations + time (Neumayer et al. 2018)';
+const NAKAMOTO_NAME = 'Confirmations only (2008 model)';
+const NEUMAYER_NAME = 'Confirmations + time (2018 model)';
 
 function renderTooltip({ active, payload, label }: TooltipContentProps) {
   if (!active || !payload || payload.length === 0) return null;

@@ -20,13 +20,13 @@ All 96 tracked files from the recovered May 5, 2026 combined project snapshot ar
 
 | Artifact | Files | Publication notes |
 | --- | --- | --- |
-| Final poster | [Print PDF](poster/PosterFinal_cmyk.pdf) · [Editable PowerPoint](poster/Capstone-Poster-Editable.pptx) | Recovered final originals; preview above rendered from the PDF |
-| Design and requirements | [Design document](reports/Bitcoin-Double-Spend-Design-Document.pdf) | Original February 4, 2026 document |
-| Design presentation | [PowerPoint slides](presentations/DesignPres.pptx) | Recovered design presentation |
+| Final poster | [Print PDF](poster/PosterFinal_cmyk.pdf) · [Editable PowerPoint](poster/Capstone-Poster-Editable.pptx) | Public copies with names, individual credits, and personal editing notes removed |
+| Design and requirements | [Design document](reports/Bitcoin-Double-Spend-Design-Document.pdf) | Public copy of the February 4, 2026 document with names and individual roles removed |
+| Design presentation | [PowerPoint slides](presentations/DesignPres.pptx) | Public copy with names, the individual-roles slide, comments, and speaker notes removed |
 | Probability mathematics | [Equation reference](math/double_spend_equations.pdf) · [Equation notebook](math/capstone_equations.ipynb) | Original supporting work |
 | Graph downsampling | [LTTB demonstration notebook](math/lttb_double_spend_demo.ipynb) | Original supporting experiment |
 
-These are historical project artifacts. The final report and individual contribution record are excluded from the current public archive. The [source record](source-record.json) identifies the included files and their hashes.
+These are historical project artifacts edited for public sharing. Names, individual credits, and personal editing notes have been removed while retaining the technical material. The final report and individual contribution record are excluded from the current public archive. The [source record](source-record.json) identifies the included files and their hashes. Original private copies remain outside the repository.
 
 ## Verification
 

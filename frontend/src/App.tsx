@@ -18,7 +18,6 @@ import { ProbabilityCard } from './components/ProbabilityCard';
 import { ProbabilityChart } from './components/ProbabilityChart';
 import { SearchBar } from './components/SearchBar';
 import { SummaryPanel } from './components/SummaryPanel';
-import { SupportLinks } from './components/SupportLinks';
 import { TransactionHeader } from './components/TransactionHeader';
 import { FAMOUS_TRANSACTIONS, SCENARIO_TRANSACTIONS } from './famousTransactions';
 import { useProbabilityStream } from './hooks/useProbabilityStream';
@@ -282,9 +281,6 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="top-bar">
-        <SupportLinks />
-      </div>
       <header
         className="hero-brand clickable"
         role="button"
@@ -473,21 +469,13 @@ export default function App() {
         <p className="footer-refs">
           Based on{' '}
           <a href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener noreferrer">
-            Nakamoto (2008)
+            Bitcoin whitepaper (2008)
           </a>{' '}
           and{' '}
           <a href="https://eprint.iacr.org/2018/040" target="_blank" rel="noopener noreferrer">
-            Neumayer, Varia &amp; Eyal (2018)
+            Acceptance policies for blockchain transactions (2018)
           </a>
           .
-        </p>
-        <p className="footer-credit">
-          This website was recreated by{' '}
-          <a href="https://www.linkedin.com/in/larsgoozen" target="_blank" rel="noopener noreferrer">
-            Lars Goozen
-          </a>
-          , inspired by his capstone project with Caden Kane, Derek Hodgkins, and Zong Xiong, and
-          advised by Sebastian Neumayer.
         </p>
         <p>
           {healthConfirmed && dataSource === 'demo'

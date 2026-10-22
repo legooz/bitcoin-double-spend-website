@@ -48,17 +48,17 @@ export function Explainer() {
       </p>
       <p>
         <a href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener noreferrer">
-          Satoshi Nakamoto's paper
+          The Bitcoin whitepaper
         </a>{' '}
         explains that Bitcoin secures transactions by placing them in a chain of timestamped blocks,
         where each additional block makes earlier transactions harder to change.{' '}
         <a href="https://eprint.iacr.org/2018/040" target="_blank" rel="noopener noreferrer">
-          Sebastian Neumayer's analysis
+          The analysis of acceptance policies for blockchain transactions
         </a>{' '}
         adds that a transaction's security should not be judged by confirmations alone, but also by how
-        much time has passed since it was broadcast. In short: Nakamoto describes the blockchain
-        structure, and Neumayer explains why time and confirmations together give a truer picture of
-        double-spend risk.
+        much time has passed since it was broadcast. The whitepaper describes the blockchain
+        structure, while the acceptance-policy analysis explains how time and confirmations together
+        affect double-spend risk.
       </p>
       <p>
         The graph below puts the two models side by side on the same slowly-confirmed transaction
@@ -146,13 +146,11 @@ export function Explainer() {
 
       <h3>References</h3>
       <p className="refs">
-        S. Nakamoto,{' '}
         <a href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener noreferrer">
           “Bitcoin: A Peer-to-Peer Electronic Cash System,”
         </a>{' '}
         2008.
         <br />
-        S. Neumayer, M. Varia, and I. Eyal,{' '}
         <a href="https://eprint.iacr.org/2018/040" target="_blank" rel="noopener noreferrer">
           “An analysis of acceptance policies for blockchain transactions,”
         </a>{' '}

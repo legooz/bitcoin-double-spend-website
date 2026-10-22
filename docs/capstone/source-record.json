@@ -5,29 +5,33 @@
       "original_filename": "Bitcoin Double Spend Design Document.pdf",
       "sha256": "12ee9a4bfd42f4a5d257b1b00f23c8218e603afceed80f1ee66be01cb56fc920",
       "published_path": "docs/capstone/reports/Bitcoin-Double-Spend-Design-Document.pdf",
-      "published_sha256": "12ee9a4bfd42f4a5d257b1b00f23c8218e603afceed80f1ee66be01cb56fc920",
-      "publication_notes": "18-page CSCE A470 design and requirements document dated February 4, 2026; original preserved byte-for-byte."
+      "published_sha256": "aeaa065b9947c443d6113963fa16199d391837a11af1db9c1cb2c411e2ca1c14",
+      "publication_notes": "Public copy of the 18-page design document. Names, advisor references, individual role assignments, person-name reference bylines, and personal metadata removed. Technical workstreams, paper titles, and reference URLs retained. Edited PDF pages: 1, 14, 16, 17, 18; the other 13 pages render identically to the source.",
+      "public_copy_edited": true
     },
     {
       "original_filename": "Capstone-Poster-Editable.pptx",
       "sha256": "2345b57d2f600c27d07d1ea289b709c67fc5058cfa4d8923e27805f0b6df1ce3",
       "published_path": "docs/capstone/poster/Capstone-Poster-Editable.pptx",
-      "published_sha256": "2345b57d2f600c27d07d1ea289b709c67fc5058cfa4d8923e27805f0b6df1ce3",
-      "publication_notes": "Editable final poster deck recovered from the coursework archive; original preserved byte-for-byte, including its original speaker note."
+      "published_sha256": "a46584d16b35ced46a266e0427e138b9abeaff8187f8943f1c653f0816afaeca",
+      "publication_notes": "Public editable poster copy. Names, advisor credit, person-name reference bylines, notes, comments, and personal metadata removed. Technical content, paper titles, and reference URLs retained.",
+      "public_copy_edited": true
     },
     {
       "original_filename": "DesignPres.pptx",
       "sha256": "3aebcfafc986d0a1fc667086705e732f3ae02c6e2495f5548ef3e6a003a56bba",
       "published_path": "docs/capstone/presentations/DesignPres.pptx",
-      "published_sha256": "3aebcfafc986d0a1fc667086705e732f3ae02c6e2495f5548ef3e6a003a56bba",
-      "publication_notes": "33-slide original design presentation, including diagrams and original references; preserved byte-for-byte."
+      "published_sha256": "35e77679778fb58fab5b97b1217ab359925f3bd01baf026d8631b6cc6229eeb8",
+      "publication_notes": "Public 32-slide design presentation. Names, individual credits, the individual-roles slide and its overview entry, notes, comments, comment-author records, and personal metadata removed. Technical diagrams, paper titles, and reference URLs retained.",
+      "public_copy_edited": true
     },
     {
       "original_filename": "PosterFinal_cmyk.pdf",
       "sha256": "24752d62ad062b1a8c923d6a55763a4e11dcab942cf82fc098b5fea7905871d7",
       "published_path": "docs/capstone/poster/PosterFinal_cmyk.pdf",
-      "published_sha256": "24752d62ad062b1a8c923d6a55763a4e11dcab942cf82fc098b5fea7905871d7",
-      "publication_notes": "Final Spring 2026 poster; original PDF preserved byte-for-byte."
+      "published_sha256": "6d06ad85b681d61ef930c2dbcba404599789cd22d3f821b5103eba61b5d7cf84",
+      "publication_notes": "Public poster copy. Names, advisor credit, person-name reference bylines, and personal metadata removed, including underlying text and raster shadows. Technical content, paper titles, and reference URLs retained.",
+      "public_copy_edited": true
     },
     {
       "original_filename": "double_spend_equations.pdf",
@@ -51,14 +55,15 @@
       "publication_notes": "Original LTTB exploration notebook with synthetic data and saved graph output; preserved byte-for-byte."
     }
   ],
-  "published_form": "Technical project artifacts. Final report and individual contribution record are excluded from the current public archive.",
+  "published_form": "Public copies of the poster, editable poster, design document, and design presentation have names and individual credits removed. Mathematical handout and notebooks remain unchanged. The final report and individual contribution record are excluded from the current archive. Original source hashes are retained for provenance.",
   "derived_files": [
     {
       "source_original_filename": "PosterFinal_cmyk.pdf",
       "published_path": "docs/capstone/poster/poster-preview.png",
-      "published_sha256": "ce90dd7da57bd3ac5f3b0430232a618ebc924faae3a9d1c33127685ef01b4402",
-      "publication_notes": "PNG preview rendered from the final original poster PDF with Poppler; maximum dimension 2400 pixels."
+      "published_sha256": "1ec82a9c936188a9c52c17634736ca0d52db7c25ca618c84cf9b9593cf415fa0",
+      "publication_notes": "PNG preview rendered from the public poster PDF after names and individual credits were removed; maximum dimension 2400 pixels."
     }
   ],
-  "recovered_for_publication": "2026-10-21"
+  "recovered_for_publication": "2026-10-21",
+  "privacy_updated": "2026-10-21"
 }

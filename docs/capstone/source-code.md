@@ -12,7 +12,7 @@ These directories contain the original application. The repository's `frontend/`
 
 ## Recovery and provenance
 
-The local combined repository snapshot at commit [`3813959`](https://github.com/legooz/bitcoin-double-spend-website/commit/3813959), dated May 5, 2026, was compared with the current repository during recovery on October 21, 2026. All **96 tracked files** from that snapshot are present. After normalizing Windows and Unix line endings, only the Python worker's `README.md` and `RPC_Params.py` differ: existing repository changes document and implement environment-based credentials in place of the original embedded configuration. The original application source logic remains preserved.
+The local combined repository snapshot at commit `3813959`, dated May 5, 2026, was compared with the current repository during recovery on October 21, 2026. All **96 tracked files** from that snapshot are present. After normalizing Windows and Unix line endings, only the Python worker's `README.md` and `RPC_Params.py` differ: existing repository changes document and implement environment-based credentials in place of the original embedded configuration. The original application source logic remains preserved. Use the current source links above for the public configuration.
 
 Two additional local copies, `capstone-final` and `SourceTreeProjects`, independently corroborated the recovered source. Their source content matched each other. Relative to the combined GitHub snapshot, the differences were a worker ignore file, the combined repository's license, and a trailing newline in `transaction_probability.py`.
 

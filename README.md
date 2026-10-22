@@ -27,7 +27,7 @@ and streams that probability live as time passes and confirmations accumulate.
 > it uses real mainnet data (including live mempool transactions) through a free
 > public API, still with no node required.
 
-![Double Spend Analyzer](docs/screenshot.png)
+![Double Spend Analyzer](docs/screenshot.jpg)
 
 ---
 
