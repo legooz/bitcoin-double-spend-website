@@ -1,12 +1,5 @@
 {
-  "course": "CSCE A470, University of Alaska Anchorage, Spring 2026",
-  "team": [
-    "Derek Hodgkins",
-    "Caden Kane",
-    "Lars Goozen",
-    "Zong Xiong"
-  ],
-  "advisor": "Sebastian Neumayer",
+  "course": "Spring 2026 capstone",
   "artifacts": [
     {
       "original_filename": "Bitcoin Double Spend Design Document.pdf",
@@ -28,22 +21,6 @@
       "published_path": "docs/capstone/presentations/DesignPres.pptx",
       "published_sha256": "3aebcfafc986d0a1fc667086705e732f3ae02c6e2495f5548ef3e6a003a56bba",
       "publication_notes": "33-slide original design presentation, including diagrams and original references; preserved byte-for-byte."
-    },
-    {
-      "original_filename": "FinalWriteupBTCDSW.pdf",
-      "sha256": "083624c525c37d5bf353e7cdc497acb68d6ff0f53d3dfc639ba1755ebab689be",
-      "published_path": "docs/capstone/reports/FinalWriteupBTCDSW-public.pdf",
-      "published_sha256": "401eb7b325d71cdacbc8630c62564096ed534bc821ae14c6cdd6f6266fc64d2c",
-      "publication_notes": "Public copy of the 25-page final report dated April 30, 2026. On PDF page 19 (printed page 17), one institutional VPN hostname and its hyperlink target, and one SSH deployment IPv4 address were permanently removed. Black boxes mark the two text redactions. Underlying text and the link target were removed and the PDF was rewritten with unreachable objects discarded. Localhost addresses, port examples, team attribution, contribution table, and project meeting logs are retained. The original local report is unchanged.",
-      "redactions": [
-        {
-          "pdf_page": 19,
-          "printed_page": 17,
-          "removed": "Institutional VPN hostname and hyperlink target; SSH deployment IPv4 address",
-          "text_regions": 2,
-          "hyperlinks": 1
-        }
-      ]
     },
     {
       "original_filename": "PosterFinal_cmyk.pdf",
@@ -74,7 +51,7 @@
       "publication_notes": "Original LTTB exploration notebook with synthetic data and saved graph output; preserved byte-for-byte."
     }
   ],
-  "published_form": "Original capstone poster, editable poster, design document, design presentation, probability handout, and exploratory notebooks are published with their original bytes. The final report is published as a minimally redacted public copy; the original hash is retained for provenance. A rendered poster preview and historical summary accompany the recovered artifacts.",
+  "published_form": "Technical project artifacts. Final report and individual contribution record are excluded from the current public archive.",
   "derived_files": [
     {
       "source_original_filename": "PosterFinal_cmyk.pdf",

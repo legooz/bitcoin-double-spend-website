@@ -1,8 +1,8 @@
 # Original Bitcoin Double-Spend capstone — Spring 2026
 
-The original **Bitcoin Double-Spend Website** was developed for **CSCE A470 at the University of Alaska Anchorage** by **Derek Hodgkins, Caden Kane, Lars Goozen, and Zong Xiong**, with project advisor **Sebastian Neumayer**.
+The original **Bitcoin Double-Spend Website** was developed as a **Spring 2026 capstone team project**.
 
-This note summarizes the recovered design presentation, design document, final report dated April 30, 2026, and final poster. It documents the original team project. The repository's current `backend/` and `frontend/` contain a later FastAPI/React rebuild; the capstone's .NET/Blazor components remain under `dscap-api/`, `dscap-web/`, and `dscap-py-worker/` for reference.
+This page documents the original application and its technical materials. The repository's current `backend/` and `frontend/` contain a later FastAPI/React rebuild; the capstone's .NET/Blazor components remain under `dscap-api/`, `dscap-web/`, and `dscap-py-worker/` for reference.
 
 ## Original source code
 
@@ -21,13 +21,12 @@ All 96 tracked files from the recovered May 5, 2026 combined project snapshot ar
 | Artifact | Files | Publication notes |
 | --- | --- | --- |
 | Final poster | [Print PDF](poster/PosterFinal_cmyk.pdf) · [Editable PowerPoint](poster/Capstone-Poster-Editable.pptx) | Recovered final originals; preview above rendered from the PDF |
-| Final report | [April 30, 2026 report](reports/FinalWriteupBTCDSW-public.pdf) | Public copy; two internal deployment references removed from PDF page 19 (printed page 17) |
 | Design and requirements | [Design document](reports/Bitcoin-Double-Spend-Design-Document.pdf) | Original February 4, 2026 document |
-| Design presentation | [PowerPoint slides](presentations/DesignPres.pptx) | Original team presentation, including planned roles |
+| Design presentation | [PowerPoint slides](presentations/DesignPres.pptx) | Recovered design presentation |
 | Probability mathematics | [Equation reference](math/double_spend_equations.pdf) · [Equation notebook](math/capstone_equations.ipynb) | Original supporting work |
 | Graph downsampling | [LTTB demonstration notebook](math/lttb_double_spend_demo.ipynb) | Original supporting experiment |
 
-These are historical project artifacts. Their original text, results, and design choices are retained. The final report's public copy removes the old VPN hostname and SSH deployment address, including the VPN hyperlink; the unmodified report remains in the personal archive. The [source record](source-record.json) identifies originals, published copies, and file hashes.
+These are historical project artifacts. The final report and individual contribution record are excluded from the current public archive. The [source record](source-record.json) identifies the included files and their hashes.
 
 ## Verification
 
@@ -50,7 +49,7 @@ flowchart LR
     API -->|Typed responses| Web
 ```
 
-The diagram is a new summary of the team's report; it omits original deployment addresses and credentials.
+The diagram summarizes the application's components and data flow.
 
 ## Engineering decisions
 
@@ -59,20 +58,14 @@ The diagram is a new summary of the team's report; it omits original deployment 
 - **Control graph size.** Long transaction histories required downsampling rather than emitting a point for every elapsed second.
 - **Treat transaction categories explicitly.** Mempool, coinbase, old, and recently confirmed transactions exposed different missing fields and update behavior.
 
-The final report describes bugs involving missing timestamps displayed as 1969, inconsistent confirmation fields, coinbase input assumptions, middleware DTO mismatches, and parameter changes during live updates. These experiences motivated the report's proposed regression cases and clearer model explanations.
-
-## Team contribution record
-
-The design presentation assigned Lars Goozen to testing, frontend/backend work, and the Python worker's probability mathematics. It assigned Caden Kane to testing, backend/worker API work, and the Bitcoin node; Derek Hodgkins to testing, frontend/backend work, and the web API; and Zong Xiong to testing and the web interface. These are documented planning roles, not a claim that the final work was partitioned exclusively that way. The report and poster are joint team artifacts.
-
 ## Historical limitations
 
-The April 2026 report describes a prototype dependent on a synchronized Bitcoin Core node and that node's mempool. It identifies deployment packaging, automated transaction-case tests, caching, and explanatory probability text as future work at that time. Those statements describe the capstone snapshot and should not be read as an audit of the later rebuilt application.
+The original prototype depends on a synchronized Bitcoin Core node and that node's mempool. This describes the archived capstone application, rather than the later rebuilt application.
 
 The probability depends on the model and attacker-share assumption. The project visualizes those assumptions; its output does not guarantee transaction finality.
 
 ## Source record
 
-The recovered files and their SHA-256 hashes are recorded in [source-record.json](source-record.json), including whether each published file is an unchanged original or a public copy with specific redactions. The poster and project documents retain the team's attribution. New explanatory prose and the architecture diagram on this page were added when organizing the archive.
+The included files and their SHA-256 hashes are recorded in [source-record.json](source-record.json). New explanatory prose and the architecture diagram on this page were added when organizing the archive.
 
-The report and poster cite S. Nakamoto's *Bitcoin: A Peer-to-Peer Electronic Cash System* (2008) and S. Neumayer, M. Varia, and I. Eyal's *An Analysis of Acceptance Policies for Blockchain Transactions* (2018). The probability model is attributed to that prior research, not invented by the capstone team.
+The mathematical background comes from *Bitcoin: A Peer-to-Peer Electronic Cash System* (2008) and *An Analysis of Acceptance Policies for Blockchain Transactions* (2018). The probability model is based on that prior research.

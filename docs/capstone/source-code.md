@@ -8,7 +8,7 @@ The original Spring 2026 capstone application is preserved in these three direct
 | C# ASP.NET Core middleware | [`dscap-api/`](../../dscap-api/) | HTTP endpoints, typed transaction models, and SignalR updates between the UI and Python worker |
 | Python backend worker | [`dscap-py-worker/`](../../dscap-py-worker/) | Bitcoin Core RPC access, probability calculations, history downsampling, and HTTP/WebSocket responses |
 
-These directories contain the original application. The repository's `frontend/` and `backend/` directories contain the later React/FastAPI rebuild. See the [capstone history and team record](README.md) for the original team and project context.
+These directories contain the original application. The repository's `frontend/` and `backend/` directories contain the later React/FastAPI rebuild. See the [capstone documentation](README.md) for project context.
 
 ## Recovery and provenance
 

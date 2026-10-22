@@ -7,8 +7,8 @@ The original team project is preserved here: a **C# / .NET 8 Blazor frontend**, 
 
 - **[Original source and setup guide](docs/capstone/source-code.md)** —
   [Blazor frontend](dscap-web/), [C# API](dscap-api/), [Python worker](dscap-py-worker/).
-- **[Capstone poster, reports, slides, and mathematics](docs/capstone/README.md)** —
-  recovered original project artifacts and team attribution.
+- **[Capstone poster, design material, and mathematics](docs/capstone/README.md)** —
+  recovered project artifacts and technical documentation.
 - **[View the final poster](docs/capstone/poster/PosterFinal_cmyk.pdf)** ·
   [Editable PowerPoint](docs/capstone/poster/Capstone-Poster-Editable.pptx).
 
@@ -153,6 +153,6 @@ The live site runs `DSCAP_DATA_SOURCE=esplora`: real mainnet data through the
 free mempool.space API, no node required. Use `demo` for a deployment with zero
 external dependencies (e.g. an offline or CI environment).
 
-## Capstone history and team credit
+## Capstone history
 
-The original UAA Spring 2026 capstone was a team project by Derek Hodgkins, Caden Kane, Lars Goozen, and Zong Xiong, advised by Sebastian Neumayer. See [the capstone history](docs/capstone/README.md) for the original .NET/Blazor architecture, documented planning roles, and lessons from the recovered report. The current FastAPI/React application is a later rebuild.
+The original Spring 2026 capstone was a team project. See [the capstone documentation](docs/capstone/README.md) for the original .NET/Blazor architecture and source code. The current FastAPI/React application is a later rebuild.
