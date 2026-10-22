@@ -1,5 +1,21 @@
 # Bitcoin Double-Spend Risk
 
+## Original UAA capstone — Spring 2026
+
+The original team project is preserved here: a **C# / .NET 8 Blazor frontend**, an
+**ASP.NET Core API**, and a **Python backend connected to Bitcoin Core**.
+
+- **[Original source and setup guide](docs/capstone/source-code.md)** —
+  [Blazor frontend](dscap-web/), [C# API](dscap-api/), [Python worker](dscap-py-worker/).
+- **[Capstone poster, reports, slides, and mathematics](docs/capstone/README.md)** —
+  recovered original project artifacts and team attribution.
+- **[View the final poster](docs/capstone/poster/PosterFinal_cmyk.pdf)** ·
+  [Editable PowerPoint](docs/capstone/poster/Capstone-Poster-Editable.pptx).
+
+The live application described below is the later React/FastAPI rebuild.
+
+## Current application
+
 A real-time web app that estimates the probability a Bitcoin transaction could
 still be **double-spent** (reversed by an attacker mining a competing chain),
 and streams that probability live as time passes and confirmations accumulate.

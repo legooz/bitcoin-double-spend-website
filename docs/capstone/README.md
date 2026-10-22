@@ -1,8 +1,37 @@
-# Spring 2026 capstone origins
+# Original Bitcoin Double-Spend capstone — Spring 2026
 
 The original **Bitcoin Double-Spend Website** was developed for **CSCE A470 at the University of Alaska Anchorage** by **Derek Hodgkins, Caden Kane, Lars Goozen, and Zong Xiong**, with project advisor **Sebastian Neumayer**.
 
 This note summarizes the recovered design presentation, design document, final report dated April 30, 2026, and final poster. It documents the original team project. The repository's current `backend/` and `frontend/` contain a later FastAPI/React rebuild; the capstone's .NET/Blazor components remain under `dscap-api/`, `dscap-web/`, and `dscap-py-worker/` for reference.
+
+## Original source code
+
+| Component | Original implementation |
+| --- | --- |
+| [Frontend](../../dscap-web/) | C# / .NET 8 Blazor with interactive server rendering and ApexCharts |
+| [Middleware](../../dscap-api/) | ASP.NET Core API, typed transaction models, and SignalR |
+| [Backend](../../dscap-py-worker/) | Python transaction processing, probability mathematics, FastAPI/WebSockets, and Bitcoin Core RPC/ZMQ |
+
+All 96 tracked files from the recovered May 5, 2026 combined project snapshot are present in this repository. The C# source trees are preserved; the worker's RPC credentials were replaced with required environment variables in an earlier maintenance change. See the [source and setup guide](source-code.md) for provenance, dependencies, and the original service configuration.
+
+## Poster and project artifacts
+
+[![Final Bitcoin Double Spend Website capstone poster](poster/poster-preview.png)](poster/PosterFinal_cmyk.pdf)
+
+| Artifact | Files | Publication notes |
+| --- | --- | --- |
+| Final poster | [Print PDF](poster/PosterFinal_cmyk.pdf) · [Editable PowerPoint](poster/Capstone-Poster-Editable.pptx) | Recovered final originals; preview above rendered from the PDF |
+| Final report | [April 30, 2026 report](reports/FinalWriteupBTCDSW-public.pdf) | Public copy; two internal deployment references removed from PDF page 19 (printed page 17) |
+| Design and requirements | [Design document](reports/Bitcoin-Double-Spend-Design-Document.pdf) | Original February 4, 2026 document |
+| Design presentation | [PowerPoint slides](presentations/DesignPres.pptx) | Original team presentation, including planned roles |
+| Probability mathematics | [Equation reference](math/double_spend_equations.pdf) · [Equation notebook](math/capstone_equations.ipynb) | Original supporting work |
+| Graph downsampling | [LTTB demonstration notebook](math/lttb_double_spend_demo.ipynb) | Original supporting experiment |
+
+These are historical project artifacts. Their original text, results, and design choices are retained. The final report's public copy removes the old VPN hostname and SSH deployment address, including the VPN hyperlink; the unmodified report remains in the personal archive. The [source record](source-record.json) identifies originals, published copies, and file hashes.
+
+## Verification
+
+On October 21, 2026, both original .NET solutions built successfully with the installed .NET SDK. The API build had no warnings; the Blazor build retained one existing nullable-property warning (`CS8618` for `ApiBaseUrl`). All four worker configuration tests passed. This verifies compilation and configuration behavior; a full run against a synchronized Bitcoin Core node was not performed.
 
 ## Original goal
 
@@ -44,6 +73,6 @@ The probability depends on the model and attacker-share assumption. The project 
 
 ## Source record
 
-Recovered original artifacts: `Bitcoin Double Spend Design Document.pdf`, `DesignPres.pptx`, `FinalWriteupBTCDSW.pdf`, `PosterFinal_cmyk.pdf`, and its editable poster deck. Their hashes are in [source-record.json](source-record.json). New summary prose and a diagram are published here rather than the unredacted reports, internal infrastructure references, or meeting logs.
+The recovered files and their SHA-256 hashes are recorded in [source-record.json](source-record.json), including whether each published file is an unchanged original or a public copy with specific redactions. The poster and project documents retain the team's attribution. New explanatory prose and the architecture diagram on this page were added when organizing the archive.
 
 The report and poster cite S. Nakamoto's *Bitcoin: A Peer-to-Peer Electronic Cash System* (2008) and S. Neumayer, M. Varia, and I. Eyal's *An Analysis of Acceptance Policies for Blockchain Transactions* (2018). The probability model is attributed to that prior research, not invented by the capstone team.

@@ -10,24 +10,78 @@
   "artifacts": [
     {
       "original_filename": "Bitcoin Double Spend Design Document.pdf",
-      "sha256": "12ee9a4bfd42f4a5d257b1b00f23c8218e603afceed80f1ee66be01cb56fc920"
+      "sha256": "12ee9a4bfd42f4a5d257b1b00f23c8218e603afceed80f1ee66be01cb56fc920",
+      "published_path": "docs/capstone/reports/Bitcoin-Double-Spend-Design-Document.pdf",
+      "published_sha256": "12ee9a4bfd42f4a5d257b1b00f23c8218e603afceed80f1ee66be01cb56fc920",
+      "publication_notes": "18-page CSCE A470 design and requirements document dated February 4, 2026; original preserved byte-for-byte."
     },
     {
       "original_filename": "Capstone-Poster-Editable.pptx",
-      "sha256": "2345b57d2f600c27d07d1ea289b709c67fc5058cfa4d8923e27805f0b6df1ce3"
+      "sha256": "2345b57d2f600c27d07d1ea289b709c67fc5058cfa4d8923e27805f0b6df1ce3",
+      "published_path": "docs/capstone/poster/Capstone-Poster-Editable.pptx",
+      "published_sha256": "2345b57d2f600c27d07d1ea289b709c67fc5058cfa4d8923e27805f0b6df1ce3",
+      "publication_notes": "Editable final poster deck recovered from the coursework archive; original preserved byte-for-byte, including its original speaker note."
     },
     {
       "original_filename": "DesignPres.pptx",
-      "sha256": "3aebcfafc986d0a1fc667086705e732f3ae02c6e2495f5548ef3e6a003a56bba"
+      "sha256": "3aebcfafc986d0a1fc667086705e732f3ae02c6e2495f5548ef3e6a003a56bba",
+      "published_path": "docs/capstone/presentations/DesignPres.pptx",
+      "published_sha256": "3aebcfafc986d0a1fc667086705e732f3ae02c6e2495f5548ef3e6a003a56bba",
+      "publication_notes": "33-slide original design presentation, including diagrams and original references; preserved byte-for-byte."
     },
     {
       "original_filename": "FinalWriteupBTCDSW.pdf",
-      "sha256": "083624c525c37d5bf353e7cdc497acb68d6ff0f53d3dfc639ba1755ebab689be"
+      "sha256": "083624c525c37d5bf353e7cdc497acb68d6ff0f53d3dfc639ba1755ebab689be",
+      "published_path": "docs/capstone/reports/FinalWriteupBTCDSW-public.pdf",
+      "published_sha256": "401eb7b325d71cdacbc8630c62564096ed534bc821ae14c6cdd6f6266fc64d2c",
+      "publication_notes": "Public copy of the 25-page final report dated April 30, 2026. On PDF page 19 (printed page 17), one institutional VPN hostname and its hyperlink target, and one SSH deployment IPv4 address were permanently removed. Black boxes mark the two text redactions. Underlying text and the link target were removed and the PDF was rewritten with unreachable objects discarded. Localhost addresses, port examples, team attribution, contribution table, and project meeting logs are retained. The original local report is unchanged.",
+      "redactions": [
+        {
+          "pdf_page": 19,
+          "printed_page": 17,
+          "removed": "Institutional VPN hostname and hyperlink target; SSH deployment IPv4 address",
+          "text_regions": 2,
+          "hyperlinks": 1
+        }
+      ]
     },
     {
       "original_filename": "PosterFinal_cmyk.pdf",
-      "sha256": "24752d62ad062b1a8c923d6a55763a4e11dcab942cf82fc098b5fea7905871d7"
+      "sha256": "24752d62ad062b1a8c923d6a55763a4e11dcab942cf82fc098b5fea7905871d7",
+      "published_path": "docs/capstone/poster/PosterFinal_cmyk.pdf",
+      "published_sha256": "24752d62ad062b1a8c923d6a55763a4e11dcab942cf82fc098b5fea7905871d7",
+      "publication_notes": "Final Spring 2026 poster; original PDF preserved byte-for-byte."
+    },
+    {
+      "original_filename": "double_spend_equations.pdf",
+      "sha256": "ae2b7474fff343fc479f95de4919e8118c6d17448c9dfd7681d1719ef2262804",
+      "published_path": "docs/capstone/math/double_spend_equations.pdf",
+      "published_sha256": "ae2b7474fff343fc479f95de4919e8118c6d17448c9dfd7681d1719ef2262804",
+      "publication_notes": "Original one-page probability-equation handout dated February 12, 2026; preserved byte-for-byte. Mathematical model attribution remains with the cited research."
+    },
+    {
+      "original_filename": "capstone_equations.ipynb",
+      "sha256": "7597044376bf5b4071d254ca6e9d5d3d45d18acfc43a58b7c4902ceab29ec6c4",
+      "published_path": "docs/capstone/math/capstone_equations.ipynb",
+      "published_sha256": "7597044376bf5b4071d254ca6e9d5d3d45d18acfc43a58b7c4902ceab29ec6c4",
+      "publication_notes": "Original exploratory probability-equation notebook; preserved byte-for-byte. Archived as historical development material, not a newly validated probability implementation."
+    },
+    {
+      "original_filename": "lttb_double_spend_demo.ipynb",
+      "sha256": "d1ef217091e7448ada6681185d222d41c6852fb9b3579dab764e5572ad4b9478",
+      "published_path": "docs/capstone/math/lttb_double_spend_demo.ipynb",
+      "published_sha256": "d1ef217091e7448ada6681185d222d41c6852fb9b3579dab764e5572ad4b9478",
+      "publication_notes": "Original LTTB exploration notebook with synthetic data and saved graph output; preserved byte-for-byte."
     }
   ],
-  "published_form": "New historical summary only; original reports, slides and internal meeting/deployment details remain in the personal archive."
+  "published_form": "Original capstone poster, editable poster, design document, design presentation, probability handout, and exploratory notebooks are published with their original bytes. The final report is published as a minimally redacted public copy; the original hash is retained for provenance. A rendered poster preview and historical summary accompany the recovered artifacts.",
+  "derived_files": [
+    {
+      "source_original_filename": "PosterFinal_cmyk.pdf",
+      "published_path": "docs/capstone/poster/poster-preview.png",
+      "published_sha256": "ce90dd7da57bd3ac5f3b0430232a618ebc924faae3a9d1c33127685ef01b4402",
+      "publication_notes": "PNG preview rendered from the final original poster PDF with Poppler; maximum dimension 2400 pixels."
+    }
+  ],
+  "recovered_for_publication": "2026-10-21"
 }
